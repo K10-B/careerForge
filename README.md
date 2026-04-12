@@ -20,11 +20,12 @@ CareerForge AI is a production-ready SaaS application for modern job seekers who
 - Premium marketing landing page with pricing
 - Sign up and sign in with Auth.js
 - Protected dashboard with usage insights
-- Resume builder with live preview
+- Resume builder with live preview and focus preview
+- Shared resume document renderer for preview and PDF export
 - AI resume bullet rewriting actions
 - Cover letter generator powered by Gemini
 - Job application tracker with CRUD flows
-- PDF resume export
+- PDF resume export with one-page fit handling and cleaner pagination
 - Light and dark mode support
 - Responsive layouts, polished empty states, and loading states
 
@@ -36,6 +37,7 @@ Copy `.env.example` to `.env` and fill in:
 DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/careerforge?sslmode=require"
 AUTH_SECRET="replace-with-a-long-random-secret"
 GEMINI_API_KEY="your-gemini-api-key"
+GEMINI_MODEL="gemini-2.5-flash"
 NEXTAUTH_URL="http://localhost:3000"
 ```
 
@@ -78,6 +80,16 @@ npm run dev
 - Resume bullet actions call `POST /api/ai/resume-bullets`.
 - Cover letter generation calls `POST /api/ai/cover-letter`.
 - If `GEMINI_API_KEY` is missing, the app returns a safe fallback message instead of breaking.
+- You can override the default Gemini model with `GEMINI_MODEL` when needed.
+
+## Resume Builder Notes
+
+- The live preview and PDF export both use the shared `ResumeDocument` component.
+- The preview calculates a fit level so dense resumes can stay closer to one page without aggressive compression.
+- PDF export uses the same fit level as the preview to keep spacing and line breaks more consistent.
+- The resume builder supports optional sections such as projects, certifications, references, GitHub, and LinkedIn.
+- Experience and project bullets are rendered with explicit bullet markers to keep alignment stable in exported PDFs.
+
 
 ## Database Models
 
