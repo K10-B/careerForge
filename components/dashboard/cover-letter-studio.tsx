@@ -1,7 +1,7 @@
 "use client";
 
-import { Copy, Loader2, Save, Sparkles } from "lucide-react";
-import { useState, useTransition } from "react";
+import { Check, ChevronDown, Copy, Loader2, Save, Sparkles } from "lucide-react";
+import { useEffect, useRef, useState, useTransition } from "react";
 
 import { saveCoverLetterAction } from "@/app/dashboard/actions";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+
+const toneOptions = [
+  "Confident and polished",
+  "Professional and concise",
+  "Warm and thoughtful",
+  "Bold and ambitious",
+  "Friendly and conversational",
+  "Executive and strategic",
+];
 
 export function CoverLetterStudio({
   initialLetters,
@@ -18,11 +27,35 @@ export function CoverLetterStudio({
   const [role, setRole] = useState("");
   const [company, setCompany] = useState("");
   const [tone, setTone] = useState("Confident and polished");
+  const [toneOpen, setToneOpen] = useState(false);
   const [jobDescription, setJobDescription] = useState("");
   const [content, setContent] = useState(initialLetters[0]?.content ?? "");
   const [message, setMessage] = useState("");
   const [isGenerating, startGenerating] = useTransition();
   const [isSaving, startSaving] = useTransition();
+  const toneRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    function handlePointerDown(event: MouseEvent) {
+      if (!toneRef.current?.contains(event.target as Node)) {
+        setToneOpen(false);
+      }
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setToneOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
 
   return (
     <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
@@ -36,7 +69,48 @@ export function CoverLetterStudio({
             <div className="space-y-2"><Label>Role</Label><Input value={role} onChange={(e) => setRole(e.target.value)} placeholder="Senior Product Manager" /></div>
             <div className="space-y-2"><Label>Company</Label><Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Acme" /></div>
           </div>
-          <div className="space-y-2"><Label>Tone</Label><Input value={tone} onChange={(e) => setTone(e.target.value)} /></div>
+          <div className="space-y-2">
+            <Label htmlFor="cover-letter-tone-button">Tone</Label>
+            <div ref={toneRef} className="relative">
+              <button
+                id="cover-letter-tone-button"
+                type="button"
+                aria-haspopup="listbox"
+                aria-expanded={toneOpen}
+                className="flex h-12 w-full items-center justify-between rounded-2xl border border-white/7 bg-slate-950/60 px-4 text-sm font-medium text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] outline-none transition hover:border-white/10 hover:bg-slate-950/70 focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/15"
+                onClick={() => setToneOpen((current) => !current)}
+              >
+                <span>{tone}</span>
+                <ChevronDown className={`h-4 w-4 text-slate-400 transition ${toneOpen ? "rotate-180" : "rotate-0"}`} />
+              </button>
+
+              {toneOpen ? (
+                <div className="absolute left-0 right-0 top-[calc(100%+10px)] z-20 overflow-hidden rounded-2xl border border-white/8 bg-slate-950/96 p-2 shadow-[0_20px_50px_rgba(2,6,23,0.45)] backdrop-blur-xl">
+                  <div role="listbox" aria-label="Tone options" className="space-y-1">
+                    {toneOptions.map((option) => {
+                      const selected = option === tone;
+                      return (
+                        <button
+                          key={option}
+                          type="button"
+                          role="option"
+                          aria-selected={selected}
+                          className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm transition ${selected ? "bg-sky-400/12 text-white" : "text-slate-300 hover:bg-white/[0.05] hover:text-white"}`}
+                          onClick={() => {
+                            setTone(option);
+                            setToneOpen(false);
+                          }}
+                        >
+                          <span>{option}</span>
+                          {selected ? <Check className="h-4 w-4 text-sky-300" /> : null}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          </div>
           <div className="space-y-2">
             <Label>Job description</Label>
             <Textarea value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} placeholder="Paste the job description or key responsibilities here..." className="min-h-[220px]" />
