@@ -29,6 +29,15 @@ export async function saveResumeAction(input: { id?: string; values: unknown }) 
   const values = resumeSchema.parse(input.values);
   const slugBase = slugify(values.title);
   const slug = input.id ? slugBase : `${slugBase}-${Date.now()}`;
+  const normalizedCertifications = (values.certifications ?? [])
+    .map((certification) => ({
+      ...certification,
+      name: certification.name?.trim() ?? "",
+      startDate: certification.startDate?.trim() ?? "",
+      endDate: certification.endDate?.trim() ?? "",
+      issuer: certification.issuer?.trim() ?? "",
+    }))
+    .filter((certification) => certification.name || certification.startDate || certification.endDate);
   const normalizedProjects = (values.projects ?? [])
     .map((project) => ({
       ...project,
@@ -41,7 +50,7 @@ export async function saveResumeAction(input: { id?: string; values: unknown }) 
   const skillsPayload = {
     items: values.skills,
     projects: normalizedProjects,
-    certifications: values.certifications ?? [],
+    certifications: normalizedCertifications,
     references: values.references ?? [],
   };
 

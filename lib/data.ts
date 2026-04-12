@@ -59,10 +59,50 @@ type StoredSkillsPayload =
   | {
       items?: string[];
       projects?: ResumeProjectItem[];
-      certifications?: string[];
+      certifications?: ResumeFormValues["certifications"] | string[];
       references?: string[];
     };
 
+function normalizeCertifications(input: unknown): ResumeFormValues["certifications"] {
+  if (!Array.isArray(input)) {
+    return [];
+  }
+
+  return input
+    .map((item, index) => {
+      if (typeof item === "string") {
+        const name = item.trim();
+        return {
+          id: `cert-${index}`,
+          name,
+          startDate: "",
+          endDate: "",
+          issuer: "",
+        };
+      }
+
+      if (item && typeof item === "object") {
+        const cert = item as {
+          id?: string;
+          name?: string;
+          startDate?: string;
+          endDate?: string;
+          issuer?: string;
+        };
+
+        return {
+          id: cert.id ?? `cert-${index}`,
+          name: cert.name ?? "",
+          startDate: cert.startDate ?? "",
+          endDate: cert.endDate ?? "",
+          issuer: cert.issuer ?? "",
+        };
+      }
+
+      return null;
+    })
+    .filter((item): item is NonNullable<typeof item> => Boolean(item));
+}
 export function parseResume(record: {
   title: string;
   summary: string;
@@ -82,7 +122,7 @@ export function parseResume(record: {
     education: record.education as ResumeFormValues["education"],
     skills: isLegacySkillsArray ? skillsPayload : skillsPayload?.items ?? [],
     projects: isLegacySkillsArray ? [] : skillsPayload?.projects ?? [],
-    certifications: isLegacySkillsArray ? [] : skillsPayload?.certifications ?? [],
+    certifications: isLegacySkillsArray ? [] : normalizeCertifications(skillsPayload?.certifications),
     references: isLegacySkillsArray ? [] : skillsPayload?.references ?? [],
   };
 }

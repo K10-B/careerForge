@@ -33,6 +33,14 @@ export type ResumeProjectItem = {
   link?: string;
 };
 
+export type ResumeCertificationItem = {
+  id: string;
+  name: string;
+  issuer: string;
+  startDate: string;
+  endDate: string;
+};
+
 export type ResumeSkillGroup = {
   category: string;
   items: string[];
@@ -46,7 +54,7 @@ export type ResumeFormValues = {
   education: ResumeEducationItem[];
   skills: string[];
   projects?: ResumeProjectItem[];
-  certifications?: string[];
+  certifications?: ResumeCertificationItem[];
   references?: string[];
   skillGroups?: ResumeSkillGroup[];
 };

@@ -7,20 +7,22 @@ import { useDeferredValue, useEffect, useMemo, useState, useTransition } from "r
 
 import { saveResumeAction } from "@/app/dashboard/actions";
 import { ResumePreview } from "@/components/resume/resume-preview";
+import type { ResumeFitLevel } from "@/components/resume/ResumeDocument";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { exportResumeToPDF } from "@/lib/exportResumeToPDF";
+import { joinProjectDescription, splitProjectDescription } from "@/lib/projectBullets";
 import { cn } from "@/lib/utils";
 import type { ResumeFormValues } from "@/types";
 
 const bulletActions = [
-  { value: "improve", label: "Improve" },
-  { value: "shorten", label: "Shorten" },
-  { value: "professionalize", label: "Professionalize" },
-  { value: "achievement-focused", label: "Achievement" },
+  { value: "improve", label: "Improve", description: "Makes the bullet clearer and stronger." },
+  { value: "shorten", label: "Shorten", description: "Makes the bullet tighter." },
+  { value: "professionalize", label: "Professionalize", description: "Makes the bullet sound more polished." },
+  { value: "achievement-focused", label: "Achievement", description: "Makes the bullet focus more on results and impact." },
 ] as const;
 
 const fieldClass =
@@ -35,6 +37,7 @@ const aiActionClass =
   "h-7 shrink-0 rounded-full border border-white/6 bg-white/[0.02] px-2 text-[10px] font-medium text-slate-300 hover:bg-white/[0.05] hover:text-white";
 const skillChipClass =
   "inline-flex max-w-full items-center gap-1.5 rounded-full border border-white/6 bg-white/[0.03] px-2.5 py-1 text-xs text-slate-300";
+const dateFieldClass = cn(fieldClass, "min-w-[140px]");
 
 function parseSkillsInput(input: string) {
   return input
@@ -113,16 +116,16 @@ function ExperienceRole({
 
       <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Field label="Company" className="xl:col-span-2">
-          <Input className={fieldClass} value={item.company} onChange={(e) => updateExperience(index, "company", e.target.value)} />
+          <Input onKeyDown={(e) => e.stopPropagation()} className={fieldClass} value={item.company} onChange={(e) => updateExperience(index, "company", e.target.value)} />
         </Field>
         <Field label="Role" className="xl:col-span-2">
-          <Input className={fieldClass} value={item.role} onChange={(e) => updateExperience(index, "role", e.target.value)} />
+          <Input onKeyDown={(e) => e.stopPropagation()} className={fieldClass} value={item.role} onChange={(e) => updateExperience(index, "role", e.target.value)} />
         </Field>
-        <Field label="Start date">
-          <Input className={fieldClass} value={item.startDate} onChange={(e) => updateExperience(index, "startDate", e.target.value)} />
+        <Field label="Start date" className="xl:col-span-2">
+          <Input onKeyDown={(e) => e.stopPropagation()} className={dateFieldClass} value={item.startDate} onChange={(e) => updateExperience(index, "startDate", e.target.value)} />
         </Field>
-        <Field label="End date">
-          <Input className={fieldClass} value={item.endDate} onChange={(e) => updateExperience(index, "endDate", e.target.value)} />
+        <Field label="End date" className="xl:col-span-2">
+          <Input onKeyDown={(e) => e.stopPropagation()} className={dateFieldClass} value={item.endDate} onChange={(e) => updateExperience(index, "endDate", e.target.value)} />
         </Field>
       </div>
 
@@ -142,6 +145,8 @@ function ExperienceRole({
                         size="sm"
                         variant="ghost"
                         className={aiActionClass}
+                        title={action.description}
+                        aria-label={`${action.label}: ${action.description}`}
                         disabled={aiLoadingKey === `${key}-${action.value}`}
                         onClick={async () => {
                           setAiLoadingKey(`${key}-${action.value}`);
@@ -176,7 +181,7 @@ function ExperienceRole({
                   </div>
                 </div>
               </div>
-              <Textarea
+              <Textarea onKeyDown={(e) => e.stopPropagation()}
                 className={cn(textareaClass, "min-h-[84px] bg-transparent")}
                 value={bullet}
                 onChange={(e) => {
@@ -215,7 +220,9 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
   const [message, setMessage] = useState("");
   const [previewExpanded, setPreviewExpanded] = useState(false);
   const [previewZoom, setPreviewZoom] = useState(1);
+  const [previewFitLevel, setPreviewFitLevel] = useState<ResumeFitLevel>(0);
   const [skillsInput, setSkillsInput] = useState(initialData.skills.join(", "));
+  const [referencesInput, setReferencesInput] = useState((initialData.references ?? []).join("\n"));
   const parsedSkills = useMemo(() => parseSkillsInput(skillsInput), [skillsInput]);
 
   const updateExperience = (index: number, field: keyof ResumeFormValues["experience"][number], value: string | string[]) => {
@@ -241,11 +248,34 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
     return () => window.clearTimeout(timeoutId);
   }, [skillsInput]);
 
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      const nextReferences = parseSkillsInput(referencesInput);
+      setValues((current) => {
+        if ((current.references ?? []).length === nextReferences.length && (current.references ?? []).every((ref, index) => ref === nextReferences[index])) {
+          return current;
+        }
+
+        return { ...current, references: nextReferences };
+      });
+    }, 250);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [referencesInput]);
+
   const updateEducation = (index: number, field: keyof ResumeFormValues["education"][number], value: string) => {
     setValues((current) => {
       const next = [...current.education];
       next[index] = { ...next[index], [field]: value };
       return { ...current, education: next };
+    });
+  };
+
+  const updateCertification = (index: number, field: "name" | "issuer" | "startDate" | "endDate", value: string) => {
+    setValues((current) => {
+      const next = [...(current.certifications ?? [])];
+      next[index] = { ...next[index], [field]: value };
+      return { ...current, certifications: next };
     });
   };
 
@@ -255,11 +285,6 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
       next[index] = { ...next[index], [field]: value };
       return { ...current, projects: next };
     });
-  };
-
-  const updateCertifications = (input: string) => {
-    const nextCertifications = parseSkillsInput(input);
-    setValues((current) => ({ ...current, certifications: nextCertifications }));
   };
 
   const updateReferences = (input: string) => {
@@ -288,7 +313,7 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
                     onClick={async () => {
                       setMessage("");
                       try {
-                        await exportResumeToPDF(values, `${values.title || "careerforge-resume"}.pdf`);
+                        await exportResumeToPDF(deferredValues, `${deferredValues.title || "careerforge-resume"}.pdf`, previewFitLevel);
                         setMessage("PDF exported successfully.");
                       } catch (error) {
                         setMessage(error instanceof Error ? error.message : "Unable to export resume.");
@@ -337,31 +362,31 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
               >
                 <div className="grid gap-4 md:grid-cols-2">
                   <Field label="Resume title" className="md:col-span-2">
-                    <Input className={fieldClass} value={values.title} onChange={(e) => setValues({ ...values, title: e.target.value })} />
+                    <Input onKeyDown={(e) => e.stopPropagation()} className={fieldClass} value={values.title} onChange={(e) => setValues({ ...values, title: e.target.value })} />
                   </Field>
                   <Field label="Full name">
-                    <Input className={fieldClass} value={values.personal.fullName} onChange={(e) => setValues({ ...values, personal: { ...values.personal, fullName: e.target.value } })} />
+                    <Input onKeyDown={(e) => e.stopPropagation()} className={fieldClass} value={values.personal.fullName} onChange={(e) => setValues({ ...values, personal: { ...values.personal, fullName: e.target.value } })} />
                   </Field>
                   <Field label="Target role">
-                    <Input className={fieldClass} value={values.personal.role} onChange={(e) => setValues({ ...values, personal: { ...values.personal, role: e.target.value } })} />
+                    <Input onKeyDown={(e) => e.stopPropagation()} className={fieldClass} value={values.personal.role} onChange={(e) => setValues({ ...values, personal: { ...values.personal, role: e.target.value } })} />
                   </Field>
                   <Field label="Email">
-                    <Input className={fieldClass} type="email" value={values.personal.email} onChange={(e) => setValues({ ...values, personal: { ...values.personal, email: e.target.value } })} />
+                    <Input onKeyDown={(e) => e.stopPropagation()} className={fieldClass} type="email" value={values.personal.email} onChange={(e) => setValues({ ...values, personal: { ...values.personal, email: e.target.value } })} />
                   </Field>
                   <Field label="Phone">
-                    <Input className={fieldClass} value={values.personal.phone} onChange={(e) => setValues({ ...values, personal: { ...values.personal, phone: e.target.value } })} />
+                    <Input onKeyDown={(e) => e.stopPropagation()} className={fieldClass} value={values.personal.phone} onChange={(e) => setValues({ ...values, personal: { ...values.personal, phone: e.target.value } })} />
                   </Field>
                   <Field label="Location">
-                    <Input className={fieldClass} value={values.personal.location} onChange={(e) => setValues({ ...values, personal: { ...values.personal, location: e.target.value } })} />
+                    <Input onKeyDown={(e) => e.stopPropagation()} className={fieldClass} value={values.personal.location} onChange={(e) => setValues({ ...values, personal: { ...values.personal, location: e.target.value } })} />
                   </Field>
                   <Field label="Website / Portfolio">
-                    <Input className={fieldClass} value={values.personal.website} onChange={(e) => setValues({ ...values, personal: { ...values.personal, website: e.target.value } })} />
+                    <Input onKeyDown={(e) => e.stopPropagation()} className={fieldClass} value={values.personal.website} onChange={(e) => setValues({ ...values, personal: { ...values.personal, website: e.target.value } })} />
                   </Field>
                   <Field label="GitHub (optional)">
-                    <Input className={fieldClass} value={values.personal.github ?? ""} onChange={(e) => setValues({ ...values, personal: { ...values.personal, github: e.target.value } })} />
+                    <Input onKeyDown={(e) => e.stopPropagation()} className={fieldClass} value={values.personal.github ?? ""} onChange={(e) => setValues({ ...values, personal: { ...values.personal, github: e.target.value } })} />
                   </Field>
                   <Field label="Professional summary" className="md:col-span-2">
-                    <Textarea className={cn(textareaClass, "min-h-[128px]")} value={values.summary} onChange={(e) => setValues({ ...values, summary: e.target.value })} />
+                    <Textarea onKeyDown={(e) => e.stopPropagation()} className={cn(textareaClass, "min-h-[128px]")} value={values.summary} onChange={(e) => setValues({ ...values, summary: e.target.value })} />
                   </Field>
                 </div>
               </EditorSection>
@@ -463,17 +488,133 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
                           </Button>
                         </div>
 
-                        <div className="mt-5 grid gap-4 md:grid-cols-2">
+                        <div className="mt-5 space-y-4">
                           <Field label="Project name">
-                            <Input className={fieldClass} value={project.name} onChange={(e) => updateProject(index, "name", e.target.value)} />
+                            <Input onKeyDown={(e) => e.stopPropagation()} className={fieldClass} value={project.name} onChange={(e) => updateProject(index, "name", e.target.value)} />
                           </Field>
-                          <Field label="Link (optional)">
-                            <Input className={fieldClass} value={project.link ?? ""} onChange={(e) => updateProject(index, "link", e.target.value)} />
-                          </Field>
-                          <Field label="Description" className="md:col-span-2">
-                            <Textarea className={cn(textareaClass, "min-h-[96px]")} value={project.description} onChange={(e) => updateProject(index, "description", e.target.value)} />
-                          </Field>
-                          
+                          <div className="grid gap-4 md:grid-cols-2">
+                            <Field label="Tech stack (optional)">
+                              <Input onKeyDown={(e) => e.stopPropagation()} className={fieldClass} value={project.techStack ?? ""} onChange={(e) => updateProject(index, "techStack", e.target.value)} />
+                            </Field>
+                            <Field label="Link (optional)">
+                              <Input onKeyDown={(e) => e.stopPropagation()} className={fieldClass} value={project.link ?? ""} onChange={(e) => updateProject(index, "link", e.target.value)} />
+                            </Field>
+                          </div>
+                          <div className="space-y-3.5">
+                            <div className="flex min-w-0 flex-col gap-1.5 sm:flex-row sm:items-end sm:justify-between">
+                              <div className="min-w-0">
+                                <Label className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-400">Project description</Label>
+                                <p className="mt-1 text-xs leading-5 text-slate-500">Write the project description as bullets for the preview and PDF.</p>
+                              </div>
+                            </div>
+                            {(() => {
+                              const bullets = splitProjectDescription(project.description ?? "");
+                              const safeBullets = bullets.length ? bullets : [""];
+                              return (
+                                <div className="space-y-3.5">
+                                  {safeBullets.map((bullet, bulletIndex) => (
+                                    <div key={`${project.id}-bullet-${bulletIndex}`} className="space-y-3 rounded-2xl bg-slate-950/18 px-3.5 py-3.5 ring-1 ring-white/4">
+                                      <div className="flex min-w-0 flex-col gap-2 xl:flex-row xl:items-center xl:justify-between">
+                                        <p className="shrink-0 text-xs font-medium text-slate-400">Bullet {bulletIndex + 1}</p>
+                                        <div className="min-w-0 xl:flex-1">
+                                          <div className="flex flex-wrap items-center gap-1.5 xl:flex-nowrap xl:justify-end">
+                                            {bulletActions.map((action) => (
+                                              <Button
+                                                key={action.value}
+                                                type="button"
+                                                size="sm"
+                                                variant="ghost"
+                                                className={aiActionClass}
+                                                title={action.description}
+                                                aria-label={`${action.label}: ${action.description}`}
+                                                disabled={aiLoadingKey === `${project.id}-${bulletIndex}-${action.value}`}
+                                                onClick={async () => {
+                                                  setAiLoadingKey(`${project.id}-${bulletIndex}-${action.value}`);
+                                                  setMessage("");
+                                                  try {
+                                                    const response = await fetch("/api/ai/resume-bullets", {
+                                                      method: "POST",
+                                                      headers: { "Content-Type": "application/json" },
+                                                      body: JSON.stringify({
+                                                        bullet,
+                                                        action: action.value,
+                                                        role: project.name || values.personal.role,
+                                                      }),
+                                                    });
+                                                    const data = await response.json();
+
+                                                    if (!response.ok) {
+                                                      setMessage(data.error ?? "Unable to improve bullet.");
+                                                      return;
+                                                    }
+
+                                                    const nextBullets = [...safeBullets];
+                                                    nextBullets[bulletIndex] = data.suggestion.trim();
+                                                    updateProject(index, "description", joinProjectDescription(nextBullets));
+                                                    setMessage(`AI ${action.value} applied.`);
+                                                  } catch (error) {
+                                                    setMessage(error instanceof Error ? error.message : "Unable to improve bullet.");
+                                                  } finally {
+                                                    setAiLoadingKey(null);
+                                                  }
+                                                }}
+                                              >
+                                                {aiLoadingKey === `${project.id}-${bulletIndex}-${action.value}` ? (
+                                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                                ) : (
+                                                  action.label
+                                                )}
+                                              </Button>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <Textarea
+                                        onKeyDown={(e) => e.stopPropagation()}
+                                        className={cn(textareaClass, "min-h-[84px] bg-transparent")}
+                                        value={bullet}
+                                        onChange={(e) => {
+                                          const nextBullets = [...safeBullets];
+                                          nextBullets[bulletIndex] = e.target.value.replace(/\s*\n+\s*/g, " ");
+                                          updateProject(index, "description", joinProjectDescription(nextBullets));
+                                        }}
+                                      />
+                                      {safeBullets.length > 1 ? (
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          size="sm"
+                                          className={subtleActionClass}
+                                          onClick={() => {
+                                            const nextBullets = safeBullets.filter((_, itemIndex) => itemIndex !== bulletIndex);
+                                            updateProject(index, "description", joinProjectDescription(nextBullets));
+                                          }}
+                                        >
+                                          <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                                          Remove
+                                        </Button>
+                                      ) : null}
+                                    </div>
+                                  ))}
+                                </div>
+                              );
+                            })()}
+                            <div className="pt-1">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className={tertiaryButtonClass}
+                                onClick={() => {
+                                  const bullets = splitProjectDescription(project.description ?? "");
+                                  updateProject(index, "description", [...bullets, ""].join("\n"));
+                                }}
+                              >
+                                <Plus className="mr-1.5 h-3.5 w-3.5" />
+                                Add bullet
+                              </Button>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -514,13 +655,13 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
                       <div key={item.id} className="rounded-[18px] bg-white/[0.02] px-4 py-4 ring-1 ring-white/5">
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-3">
                           <Field label="School">
-                            <Input className={fieldClass} value={item.school} onChange={(e) => updateEducation(index, "school", e.target.value)} />
+                            <Input onKeyDown={(e) => e.stopPropagation()} className={fieldClass} value={item.school} onChange={(e) => updateEducation(index, "school", e.target.value)} />
                           </Field>
                           <Field label="Degree">
-                            <Input className={fieldClass} value={item.degree} onChange={(e) => updateEducation(index, "degree", e.target.value)} />
+                            <Input onKeyDown={(e) => e.stopPropagation()} className={fieldClass} value={item.degree} onChange={(e) => updateEducation(index, "degree", e.target.value)} />
                           </Field>
                           <Field label="Year">
-                            <Input className={fieldClass} value={item.year} onChange={(e) => updateEducation(index, "year", e.target.value)} />
+                            <Input onKeyDown={(e) => e.stopPropagation()} className={fieldClass} value={item.year} onChange={(e) => updateEducation(index, "year", e.target.value)} />
                           </Field>
                         </div>
                       </div>
@@ -539,7 +680,7 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
                       label="Skills, strengths, or tools"
                       hint="Use one line per skill group or list, or keep everything on one line if you prefer."
                     >
-                      <Textarea
+                      <Textarea onKeyDown={(e) => e.stopPropagation()}
                         className={cn(textareaClass, "min-h-[150px]")}
                         value={skillsInput}
                         placeholder="Communication, Leadership, Project Management, Excel"
@@ -580,20 +721,72 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
                 eyebrow="Supporting"
                 title="Certifications"
                 description="Optional. Add certifications only when they strengthen the role you are targeting."
-              >
-                <div className="space-y-3.5">
-                  <Field
-                    label="Certifications (optional)"
-                    hint="Use one certification per line."
+                actions={
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className={tertiaryButtonClass}
+                    onClick={() =>
+                      setValues((current) => ({
+                        ...current,
+                        certifications: [
+                          ...(current.certifications ?? []),
+                          { id: crypto.randomUUID(), name: "", issuer: "", startDate: "", endDate: "" },
+                        ],
+                      }))
+                    }
                   >
-                    <Textarea
-                      className={cn(textareaClass, "min-h-[120px]")}
-                      value={(values.certifications ?? []).join("\n")}
-                      placeholder="Google UX Design Certificate"
-                      onChange={(e) => updateCertifications(e.target.value)}
-                    />
-                  </Field>
-                </div>
+                    <Plus className="mr-1.5 h-3.5 w-3.5" />
+                    Add certification
+                  </Button>
+                }
+              >
+                {(values.certifications ?? []).length ? (
+                  <div className="space-y-3">
+                    {(values.certifications ?? []).map((cert, index) => (
+                      <div key={cert.id} className="rounded-[18px] bg-white/[0.02] px-4 py-4 ring-1 ring-white/5">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+                          <Field label="Certification" className="xl:col-span-2">
+                            <Input onKeyDown={(e) => e.stopPropagation()} className={fieldClass} value={cert.name} onChange={(e) => updateCertification(index, "name", e.target.value.replace(/\s*\n+\s*/g, " "))} />
+                          </Field>
+                          <Field label="Issuer (optional)" className="xl:col-span-2">
+                            <Input onKeyDown={(e) => e.stopPropagation()} className={fieldClass} value={cert.issuer} onChange={(e) => updateCertification(index, "issuer", e.target.value.replace(/\s*\n+\s*/g, " "))} />
+                          </Field>
+                          <Field label="Start date" className="xl:col-span-2">
+                            <Input onKeyDown={(e) => e.stopPropagation()} className={dateFieldClass} value={cert.startDate} onChange={(e) => updateCertification(index, "startDate", e.target.value.replace(/\s*\n+\s*/g, " "))} />
+                          </Field>
+                          <Field label="End date" className="xl:col-span-2">
+                            <Input onKeyDown={(e) => e.stopPropagation()} className={dateFieldClass} value={cert.endDate} onChange={(e) => updateCertification(index, "endDate", e.target.value.replace(/\s*\n+\s*/g, " "))} />
+                          </Field>
+                        </div>
+                        <p className="text-xs text-slate-500">Example: Coursera - Google UX Design - 2023</p>
+
+                        <div className="mt-3">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className={subtleActionClass}
+                            onClick={() =>
+                              setValues((current) => ({
+                                ...current,
+                                certifications: (current.certifications ?? []).filter((item) => item.id !== cert.id),
+                              }))
+                            }
+                          >
+                            <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                            Remove certification
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rounded-[20px] border border-dashed border-white/8 bg-white/[0.02] px-4 py-5 text-sm text-slate-400">
+                    No certifications added yet. This section is optional.
+                  </div>
+                )}
               </EditorSection>
 
               <EditorSection
@@ -606,12 +799,13 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
                     label="References (optional)"
                     hint="Use one reference line per entry, for example: Jane Doe - Engineering Manager - jane@company.com"
                   >
-                    <Textarea
+                    <Textarea onKeyDown={(e) => e.stopPropagation()}
                       className={cn(textareaClass, "min-h-[120px]")}
-                      value={(values.references ?? []).join("\n")}
+                      value={referencesInput}
                       placeholder="Jane Doe - Engineering Manager - jane@company.com"
-                      onChange={(e) => updateReferences(e.target.value)}
-                    />
+                      onChange={(e) => setReferencesInput(e.target.value.replace(/\s*\n+\s*/g, " "))}
+                      onBlur={() => updateReferences(referencesInput)}
+                      />
                   </Field>
                 </div>
               </EditorSection>
@@ -641,8 +835,8 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="p-3 sm:p-4">
-              <ResumePreview values={deferredValues} />
+            <CardContent className="h-[780px] p-3 sm:h-[820px] sm:p-4">
+              <ResumePreview values={deferredValues} onFitLevelChange={setPreviewFitLevel} />
             </CardContent>
           </Card>
         </div>

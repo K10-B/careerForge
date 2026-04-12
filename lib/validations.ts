@@ -40,6 +40,13 @@ const projectSchema = z.object({
   techStack: z.string().optional().default(""),
   link: z.string().optional().default(""),
 });
+const certificationSchema = z.object({
+  id: z.string(),
+  name: z.string().optional().default(""),
+  startDate: z.string().optional().default(""),
+  endDate: z.string().optional().default(""),
+  issuer: z.string().optional().default(""),
+});
 
 export const resumeSchema = z.object({
   title: z.string().min(3, "Resume title is required."),
@@ -49,7 +56,7 @@ export const resumeSchema = z.object({
   education: z.array(educationSchema).min(1, "Add at least one education entry."),
   skills: z.array(z.string().min(2)).min(1, "Add at least one skill."),
   projects: z.array(projectSchema).optional().default([]),
-  certifications: z.array(z.string().min(2)).optional().default([]),
+  certifications: z.array(certificationSchema).optional().default([]),
   references: z.array(z.string().min(2)).optional().default([]),
 });
 

@@ -15,14 +15,38 @@ type ResumePDFData = {
   experience: ResumeFormValues["experience"];
   projects: ResumeProjectItem[];
   education: ResumeFormValues["education"];
-  certifications: string[];
+  certifications: Array<{ name: string; startDate: string; endDate: string; issuer: string }>;
   references: string[];
 };
 
+
+function normalizeCertifications(input: unknown) {
+  if (!Array.isArray(input)) {
+    return [] as Array<{ name: string; startDate: string; endDate: string; issuer: string }>;
+  }
+
+  return input.map((item) => {
+    if (typeof item === "string") {
+      return { name: item.trim(), startDate: "", endDate: "", issuer: "" };
+    }
+
+    if (item && typeof item === "object") {
+      const cert = item as { name?: string; startDate?: string; endDate?: string; issuer?: string };
+      return {
+        name: cert.name ?? "",
+        startDate: cert.startDate ?? "",
+        endDate: cert.endDate ?? "",
+        issuer: cert.issuer ?? "",
+      };
+    }
+
+    return { name: "", startDate: "", endDate: "", issuer: "" };
+  });
+}
 export function normalizeResumeForPDF(values: ResumeFormValues): ResumePDFData {
   const extra = values as ResumeFormValues & {
     projects?: ResumeProjectItem[];
-    certifications?: string[];
+    certifications?: ResumeFormValues["certifications"] | string[];
     references?: string[];
     skillGroups?: ResumeSkillGroup[];
   };
@@ -42,7 +66,7 @@ export function normalizeResumeForPDF(values: ResumeFormValues): ResumePDFData {
     experience: values.experience,
     projects: extra.projects ?? [],
     education: values.education,
-    certifications: extra.certifications ?? [],
+    certifications: normalizeCertifications(extra.certifications),
     references: extra.references ?? [],
   };
 }

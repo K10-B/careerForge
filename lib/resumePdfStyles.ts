@@ -190,6 +190,10 @@ export const resumePdfStyles = `
     line-height: 1.42;
   }
 
+  .resume-pdf-inline-label {
+    font-weight: 700;
+  }
+
   .resume-pdf-entry-date {
     margin: 0;
     flex-shrink: 0;
@@ -198,6 +202,11 @@ export const resumePdfStyles = `
     font-size: 11px;
     line-height: 1.3;
     text-align: right;
+    font-weight: 600;
+  }
+
+  .resume-pdf-entry-date-strong {
+    font-weight: 700;
   }
 
   .resume-pdf-bullets {
