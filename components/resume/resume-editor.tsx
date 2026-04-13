@@ -3,11 +3,10 @@
 import { Expand, FileText, Loader2, Minus, Plus, Sparkles, Trash2, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useDeferredValue, useEffect, useMemo, useState, useTransition } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 
 import { saveResumeAction } from "@/app/dashboard/actions";
 import { ResumePreview } from "@/components/resume/resume-preview";
-import type { ResumeFitLevel } from "@/components/resume/ResumeDocument";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -215,13 +214,13 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
   const router = useRouter();
   const [values, setValues] = useState<ResumeFormValues>(initialData);
   const deferredValues = useDeferredValue(values);
-  const [isPending, startTransition] = useTransition();
+  const [isSaving, setIsSaving] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [aiLoadingKey, setAiLoadingKey] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [previewExpanded, setPreviewExpanded] = useState(false);
   const [previewZoom, setPreviewZoom] = useState(1);
-  const [previewFitLevel, setPreviewFitLevel] = useState<ResumeFitLevel>(0);
-  const [skillsInput, setSkillsInput] = useState(initialData.skills.join(", "));
+  const [skillsInput, setSkillsInput] = useState(initialData.skills.map((skill) => skill.replace(/\\n/g, "\n")).join("\n"));
   const [referencesInput, setReferencesInput] = useState((initialData.references ?? []).join("\n"));
   const parsedSkills = useMemo(() => parseSkillsInput(skillsInput), [skillsInput]);
 
@@ -308,42 +307,53 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
               <div className="flex min-w-0 flex-col gap-3 2xl:max-w-[320px] 2xl:items-end">
                 <div className="flex flex-wrap items-center gap-2 2xl:justify-end">
                   <Button
+                    type="button"
                     variant="outline"
+                    disabled={isExporting || isSaving}
                     className="h-10 rounded-xl border-white/7 bg-white/[0.03] px-4.5 text-slate-200 hover:bg-white/[0.05]"
                     onClick={async () => {
                       setMessage("");
+                      setIsExporting(true);
                       try {
-                        await exportResumeToPDF(deferredValues, `${deferredValues.title || "careerforge-resume"}.pdf`, previewFitLevel);
-                        setMessage("PDF exported successfully.");
+                        const result = await saveResumeAction({ id: resumeId, values });
+                        if (!resumeId) {
+                          router.push(`/dashboard/resumes/${result.id}`);
+                        }
+                        router.refresh();
+                        await exportResumeToPDF(result.id);
+                        setMessage("Resume exported successfully.");
                       } catch (error) {
                         setMessage(error instanceof Error ? error.message : "Unable to export resume.");
+                      } finally {
+                        setIsExporting(false);
                       }
                     }}
                   >
                     <FileText className="mr-2 h-4 w-4" />
-                    Export PDF
+                    Export resume
                   </Button>
                   <Button
                     variant="accent"
-                    disabled={isPending}
+                    disabled={isExporting || isSaving}
                     className="h-10 rounded-xl px-4.5 shadow-[0_12px_28px_rgba(14,165,233,0.18)]"
-                    onClick={() => {
+                    onClick={async () => {
                       setMessage("");
-                      startTransition(async () => {
-                        try {
-                          const result = await saveResumeAction({ id: resumeId, values });
-                          setMessage("Resume saved successfully.");
-                          if (!resumeId) {
-                            router.push(`/dashboard/resumes/${result.id}`);
-                          }
-                          router.refresh();
-                        } catch (error) {
-                          setMessage(error instanceof Error ? error.message : "Unable to save resume.");
+                      setIsSaving(true);
+                      try {
+                        const result = await saveResumeAction({ id: resumeId, values });
+                        setMessage("Resume saved successfully.");
+                        if (!resumeId) {
+                          router.push(`/dashboard/resumes/${result.id}`);
                         }
-                      });
+                        router.refresh();
+                      } catch (error) {
+                        setMessage(error instanceof Error ? error.message : "Unable to save resume.");
+                      } finally {
+                        setIsSaving(false);
+                      }
                     }}
                   >
-                    {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                    {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
                     Save resume
                   </Button>
                 </div>
@@ -607,7 +617,7 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
                                 className={tertiaryButtonClass}
                                 onClick={() => {
                                   const bullets = splitProjectDescription(project.description ?? "");
-                                  updateProject(index, "description", [...bullets, ""].join("\n"));
+                                  updateProject(index, "description", joinProjectDescription([...bullets, ""]));
                                 }}
                               >
                                 <Plus className="mr-1.5 h-3.5 w-3.5" />
@@ -836,7 +846,7 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
               </div>
             </CardHeader>
             <CardContent className="h-[780px] p-3 sm:h-[820px] sm:p-4">
-              <ResumePreview values={deferredValues} onFitLevelChange={setPreviewFitLevel} />
+              <ResumePreview values={deferredValues} />
             </CardContent>
           </Card>
         </div>
@@ -904,3 +914,10 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
     </>
   );
 }
+
+
+
+
+
+
+

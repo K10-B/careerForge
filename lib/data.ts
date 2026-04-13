@@ -63,6 +63,26 @@ type StoredSkillsPayload =
       references?: string[];
     };
 
+function normalizeSkills(items: string[] | undefined) {
+  if (!items?.length) {
+    return [];
+  }
+
+  return items
+    .flatMap((item) => {
+      const normalized = item.replace(/\\n/g, "`n").trim();
+      if (!normalized) {
+        return [];
+      }
+
+      if (!normalized.includes("\n") && /,\s*(?=(?:[A-Za-z][A-Za-z/& ]{1,30}):)/.test(normalized)) {
+        return normalized.split(/,\s*(?=(?:[A-Za-z][A-Za-z/& ]{1,30}):)/).map((part) => part.trim()).filter(Boolean);
+      }
+
+      return normalized.split(/\n+/).map((part) => part.trim()).filter(Boolean);
+    })
+    .filter(Boolean);
+}
 function normalizeCertifications(input: unknown): ResumeFormValues["certifications"] {
   if (!Array.isArray(input)) {
     return [];
@@ -120,9 +140,11 @@ export function parseResume(record: {
     personal: record.personal as ResumeFormValues["personal"],
     experience: record.experience as ResumeFormValues["experience"],
     education: record.education as ResumeFormValues["education"],
-    skills: isLegacySkillsArray ? skillsPayload : skillsPayload?.items ?? [],
+    skills: normalizeSkills(isLegacySkillsArray ? skillsPayload : skillsPayload?.items),
     projects: isLegacySkillsArray ? [] : skillsPayload?.projects ?? [],
     certifications: isLegacySkillsArray ? [] : normalizeCertifications(skillsPayload?.certifications),
     references: isLegacySkillsArray ? [] : skillsPayload?.references ?? [],
   };
 }
+
+

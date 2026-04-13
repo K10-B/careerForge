@@ -1,3 +1,5 @@
+import type { CSSProperties } from "react";
+
 import { splitProjectDescription } from "@/lib/projectBullets";
 import { normalizeResumeForPDF } from "@/lib/resume-pdf";
 import type { ResumeFormValues } from "@/types";
@@ -171,16 +173,26 @@ function normalizeInline(input: string) {
   return input.replace(/\s*\n+\s*/g, " ").trim();
 }
 
-function getBulletItemStyle(fit: ResumeFitStyles, isLast: boolean) {
+function getBulletItemStyle(fit: ResumeFitStyles, isLast: boolean): CSSProperties {
   return {
-    display: "flex",
-    alignItems: "flex-start",
-    columnGap: "8px",
     color: "#000000",
     fontSize: `${fit.bodySize}px`,
     lineHeight: fit.bodyLineHeight,
     marginBottom: isLast ? "0px" : `${fit.bulletGap}px`,
     listStyle: "none",
+  };
+}
+
+function getBulletMarkerStyle(fit: ResumeFitStyles): CSSProperties {
+  return {
+    flex: "0 0 auto",
+    width: "11px",
+    display: "inline-block",
+    fontSize: `${fit.bodySize + 2}px`,
+    lineHeight: 1,
+    textAlign: "center",
+    fontFamily: "Arial, Helvetica, sans-serif",
+    paddingTop: "1px",
   };
 }
 
@@ -319,28 +331,21 @@ export function ResumeDocument({ values, documentId = "resume-document", classNa
                       >
                         {item.bullets.map((bullet, index) => (
                           <li key={`${item.id}-${index}`} style={getBulletItemStyle(fit, index === item.bullets.length - 1)}>
-                            <span
-                              aria-hidden="true"
+                            <div
                               style={{
-                                width: "14px",
-                                flexShrink: 0,
                                 display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                paddingTop: "4px",
+                                alignItems: "flex-start",
+                                columnGap: "5px",
                               }}
                             >
                               <span
-                                style={{
-                                  width: "4px",
-                                  height: "4px",
-                                  borderRadius: "999px",
-                                  backgroundColor: "#000000",
-                                  display: "block",
-                                }}
-                              />
-                            </span>
-                            <span style={{ flex: 1 }}>{bullet}</span>
+                                aria-hidden="true"
+                                style={getBulletMarkerStyle(fit)}
+                              >
+                                &bull;
+                              </span>
+                              <span style={{ flex: 1, minWidth: 0, lineHeight: fit.bodyLineHeight }}>{bullet}</span>
+                            </div>
                           </li>
                         ))}
                       </ul>
@@ -383,28 +388,21 @@ export function ResumeDocument({ values, documentId = "resume-document", classNa
                         >
                           {projectBullets.map((line, index) => (
                             <li key={`${project.id}-desc-${index}`} style={getBulletItemStyle(fit, index === projectBullets.length - 1)}>
-                              <span
-                                aria-hidden="true"
+                              <div
                                 style={{
-                                  width: "14px",
-                                  flexShrink: 0,
                                   display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  paddingTop: "4px",
+                                  alignItems: "flex-start",
+                                  columnGap: "5px",
                                 }}
                               >
                                 <span
-                                  style={{
-                                    width: "4px",
-                                    height: "4px",
-                                    borderRadius: "999px",
-                                    backgroundColor: "#000000",
-                                    display: "block",
-                                  }}
-                                />
-                              </span>
-                              <span style={{ flex: 1 }}>{line}</span>
+                                  aria-hidden="true"
+                                  style={getBulletMarkerStyle(fit)}
+                                >
+                                  &bull;
+                                </span>
+                                <span style={{ flex: 1, minWidth: 0, lineHeight: fit.bodyLineHeight }}>{line}</span>
+                              </div>
                             </li>
                           ))}
                         </ul>

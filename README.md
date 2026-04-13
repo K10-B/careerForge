@@ -13,6 +13,7 @@ CareerForge AI is a production-ready SaaS application for modern job seekers who
 - Prisma ORM
 - PostgreSQL
 - Gemini API
+- Playwright for direct PDF generation
 - Vercel-ready deployment
 
 ## Features
@@ -22,10 +23,11 @@ CareerForge AI is a production-ready SaaS application for modern job seekers who
 - Protected dashboard with usage insights
 - Resume builder with live preview and focus preview
 - Shared resume document renderer for preview and PDF export
+- Direct resume PDF download powered by Playwright from the shared export route
 - AI resume bullet rewriting actions
 - Cover letter generator powered by Gemini
 - Job application tracker with CRUD flows
-- PDF resume export with one-page fit handling and cleaner pagination
+- PDF resume export with one-page fit handling, cleaner pagination, and blank-page cleanup
 - Light and dark mode support
 - Responsive layouts, polished empty states, and loading states
 
@@ -74,6 +76,7 @@ npm run dev
 - Auth.js is configured with credentials authentication.
 - Users are created through `POST /api/auth/register`.
 - Protected routes live under `/dashboard`.
+- The app now passes the server session into the client `SessionProvider` to reduce session refetch noise and hydration issues.
 
 ## AI Notes
 
@@ -86,10 +89,17 @@ npm run dev
 
 - The live preview and PDF export both use the shared `ResumeDocument` component.
 - The preview calculates a fit level so dense resumes can stay closer to one page without aggressive compression.
+- Resume PDF export is generated from the shared HTML/CSS document path through `/resumes/[id]/export` and `/resumes/[id]/export-pdf`.
+- Export now downloads directly without opening a visible print popup or export tab.
 - PDF export uses the same fit level as the preview to keep spacing and line breaks more consistent.
 - The resume builder supports optional sections such as projects, certifications, references, GitHub, and LinkedIn.
 - Experience and project bullets are rendered with explicit bullet markers to keep alignment stable in exported PDFs.
+- Core Skills line breaks are preserved on save/reload, including recovery for older flattened skill-group entries and literal `\n` data.
 
+## UI Notes
+
+- Save and export buttons in the resume editor use separate loading states.
+- The theme toggle waits for client mount before swapping icons to avoid hydration mismatches.
 
 ## Database Models
 

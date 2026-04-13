@@ -136,8 +136,9 @@ export function ResumePreview({ values, previewId = "resume-preview", zoomLevel 
 
       <div className="relative h-full w-full overflow-auto bg-transparent">
         <div className="flex w-full justify-center" style={{ minHeight: `${stageHeight}px`, padding: `${PREVIEW_STAGE_PADDING}px` }}>
-          <div className="shrink-0" style={{ width: `${scaledWidth}px`, height: `${scaledHeight}px` }}>
+          <div id={`${previewId}-surface-frame`} className="shrink-0" style={{ width: `${scaledWidth}px`, height: `${scaledHeight}px` }}>
             <div
+              id={`${previewId}-surface`}
               className="origin-top-left"
               style={{
                 width: `${RESUME_DOCUMENT_WIDTH}px`,

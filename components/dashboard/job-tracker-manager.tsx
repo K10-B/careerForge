@@ -1,8 +1,8 @@
 "use client";
 
 import { format } from "date-fns";
-import { Loader2, Plus, Trash2 } from "lucide-react";
-import { useState, useTransition } from "react";
+import { Check, ChevronDown, Loader2, Plus, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState, useTransition } from "react";
 
 import { deleteJobApplicationAction, saveJobApplicationAction } from "@/app/dashboard/actions";
 import { applicationStatuses } from "@/lib/constants";
@@ -36,6 +36,30 @@ export function JobTrackerManager({ initialApplications }: { initialApplications
   const [editingId, setEditingId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [isPending, startTransition] = useTransition();
+  const [statusOpen, setStatusOpen] = useState(false);
+  const statusRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    function handlePointerDown(event: MouseEvent) {
+      if (!statusRef.current?.contains(event.target as Node)) {
+        setStatusOpen(false);
+      }
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setStatusOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
 
   return (
     <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
@@ -48,10 +72,46 @@ export function JobTrackerManager({ initialApplications }: { initialApplications
           <div className="space-y-2"><Label>Company</Label><Input value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} /></div>
           <div className="space-y-2"><Label>Role</Label><Input value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} /></div>
           <div className="space-y-2">
-            <Label>Status</Label>
-            <select className="h-12 w-full rounded-2xl border border-input bg-background/70 px-4 text-sm" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
-              {applicationStatuses.map((status) => <option key={status} value={status}>{status}</option>)}
-            </select>
+            <Label htmlFor="application-status-button">Status</Label>
+            <div ref={statusRef} className="relative">
+              <button
+                id="application-status-button"
+                type="button"
+                aria-haspopup="listbox"
+                aria-expanded={statusOpen}
+                className="flex h-12 w-full items-center justify-between rounded-2xl border border-input bg-background/70 px-4 text-sm font-medium text-foreground transition hover:border-border hover:bg-background/85 focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/15"
+                onClick={() => setStatusOpen((current) => !current)}
+              >
+                <span>{form.status}</span>
+                <ChevronDown className={`h-4 w-4 text-muted-foreground transition ${statusOpen ? "rotate-180" : "rotate-0"}`} />
+              </button>
+
+              {statusOpen ? (
+                <div className="absolute left-0 right-0 top-[calc(100%+10px)] z-20 overflow-hidden rounded-2xl border border-white/8 bg-slate-950/96 p-2 shadow-[0_20px_50px_rgba(2,6,23,0.45)] backdrop-blur-xl">
+                  <div role="listbox" aria-label="Application status options" className="space-y-1">
+                    {applicationStatuses.map((status) => {
+                      const selected = status === form.status;
+                      return (
+                        <button
+                          key={status}
+                          type="button"
+                          role="option"
+                          aria-selected={selected}
+                          className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm transition ${selected ? "bg-sky-400/12 text-white" : "text-slate-300 hover:bg-white/[0.05] hover:text-white"}`}
+                          onClick={() => {
+                            setForm({ ...form, status });
+                            setStatusOpen(false);
+                          }}
+                        >
+                          <span>{status}</span>
+                          {selected ? <Check className="h-4 w-4 text-sky-300" /> : null}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : null}
+            </div>
           </div>
           <div className="space-y-2"><Label>Applied date</Label><Input type="date" value={form.appliedDate} onChange={(e) => setForm({ ...form, appliedDate: e.target.value })} /></div>
           <div className="space-y-2"><Label>Job link</Label><Input type="url" value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} /></div>
