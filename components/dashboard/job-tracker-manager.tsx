@@ -1,7 +1,20 @@
 ﻿"use client";
 
-import { format } from "date-fns";
-import { Check, ChevronDown, ExternalLink, Loader2, Plus, Trash2, X } from "lucide-react";
+import {
+  addMonths,
+  eachDayOfInterval,
+  endOfMonth,
+  endOfWeek,
+  format,
+  isSameDay,
+  isSameMonth,
+  isToday,
+  parseISO,
+  startOfMonth,
+  startOfWeek,
+  subMonths,
+} from "date-fns";
+import { Check, ChevronDown, ChevronLeft, ChevronRight, ExternalLink, Loader2, Plus, Trash2, X } from "lucide-react";
 import { type ReactNode, useEffect, useMemo, useRef, useState, useTransition } from "react";
 
 import { deleteJobApplicationAction, saveJobApplicationAction } from "@/app/dashboard/actions";
@@ -27,6 +40,11 @@ type NotesSections = {
   responsibilities: string[];
   techStack: string[];
   extra: string[];
+};
+
+type AppliedDatePickerProps = {
+  value: string;
+  onChange: (value: string) => void;
 };
 
 const statusTone: Record<ApplicationItem["status"], string> = {
@@ -104,6 +122,122 @@ function parseNotesSections(notes: string | null): NotesSections {
   }
 
   return { summary, responsibilities, techStack, extra };
+}
+
+function AppliedDatePicker({ value, onChange }: AppliedDatePickerProps) {
+  const [open, setOpen] = useState(false);
+  const [month, setMonth] = useState<Date>(() => (value ? parseISO(value) : new Date()));
+  const ref = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (value) {
+      setMonth(parseISO(value));
+    }
+  }, [value]);
+
+  useEffect(() => {
+    function handlePointerDown(event: MouseEvent) {
+      if (!ref.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
+
+  const selectedDate = value ? parseISO(value) : null;
+  const calendarDays = eachDayOfInterval({
+    start: startOfWeek(startOfMonth(month), { weekStartsOn: 0 }),
+    end: endOfWeek(endOfMonth(month), { weekStartsOn: 0 }),
+  });
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        className="flex h-12 w-full items-center justify-between rounded-2xl border border-input bg-background/70 px-4 text-sm text-foreground transition hover:border-border hover:bg-background/85 focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/15"
+        onClick={() => setOpen((current) => !current)}
+      >
+        <span className={value ? "text-foreground" : "text-muted-foreground"}>{value ? format(parseISO(value), "MMM d, yyyy") : "Select a date"}</span>
+        <ChevronDown className={`h-4 w-4 text-muted-foreground transition ${open ? "rotate-180" : "rotate-0"}`} />
+      </button>
+
+      {open ? (
+        <div className="absolute left-0 right-0 top-[calc(100%+10px)] z-30 overflow-hidden rounded-2xl border border-white/8 bg-slate-950/96 p-3.5 shadow-[0_18px_40px_rgba(2,6,23,0.42)] backdrop-blur-xl">
+          <div className="mb-3 flex items-center justify-between">
+            <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => setMonth((current) => subMonths(current, 1))}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <p className="text-[13px] font-semibold text-slate-100">{format(month, "MMMM yyyy")}</p>
+            <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => setMonth((current) => addMonths(current, 1))}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-medium uppercase tracking-[0.1em] text-slate-500">
+            {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((day) => (
+              <div key={day} className="py-0.5">{day}</div>
+            ))}
+          </div>
+
+          <div className="mt-1.5 grid grid-cols-7 gap-0.5">
+            {calendarDays.map((day) => {
+              const selected = selectedDate ? isSameDay(day, selectedDate) : false;
+              const inMonth = isSameMonth(day, month);
+              return (
+                <button
+                  key={day.toISOString()}
+                  type="button"
+                  className={`flex h-8 items-center justify-center rounded-lg text-sm transition ${
+                    selected
+                      ? "bg-sky-400/20 text-sky-100 ring-1 ring-sky-400/30"
+                      : inMonth
+                        ? "text-slate-200 hover:bg-white/[0.06]"
+                        : "text-slate-600 hover:bg-white/[0.03]"
+                  } ${isToday(day) && !selected ? "border border-white/10" : "border border-transparent"}`}
+                  onClick={() => {
+                    onChange(format(day, "yyyy-MM-dd"));
+                    setOpen(false);
+                  }}
+                >
+                  {format(day, "d")}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="mt-3 flex items-center justify-between border-t border-white/6 pt-2.5">
+            <Button type="button" variant="ghost" size="sm" className="h-8 px-2.5 text-xs" onClick={() => onChange("")}>Clear</Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                const today = new Date();
+                setMonth(today);
+                onChange(format(today, "yyyy-MM-dd"));
+                setOpen(false);
+              }}
+            >
+              Today
+            </Button>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
 function MetaRow({ application }: { application: ApplicationItem }) {
@@ -265,7 +399,7 @@ export function JobTrackerManager({ initialApplications }: { initialApplications
                 ) : null}
               </div>
             </div>
-            <div className="space-y-2"><Label>Applied date</Label><Input type="date" value={form.appliedDate} onChange={(e) => setForm({ ...form, appliedDate: e.target.value })} /></div>
+            <div className="space-y-2"><Label>Applied date</Label><AppliedDatePicker value={form.appliedDate} onChange={(appliedDate) => setForm({ ...form, appliedDate })} /></div>
             <div className="space-y-2"><Label>Job link</Label><Input type="url" value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} /></div>
             <div className="space-y-2"><Label>Notes</Label><Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="min-h-[140px]" /></div>
             <Button
@@ -295,6 +429,11 @@ export function JobTrackerManager({ initialApplications }: { initialApplications
         </Card>
 
         <div className="space-y-4">
+          <div className="space-y-1 rounded-2xl border border-white/6 bg-[linear-gradient(180deg,rgba(15,23,42,0.42),rgba(15,23,42,0.18))] px-4 py-3">
+            <p className="text-sm font-semibold text-slate-200">Application pipeline</p>
+            <p className="text-xs leading-5 text-slate-400">Choose a status card to open the applications in that stage.</p>
+          </div>
+
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {applicationStatuses.map((status) => {
               const count = applications.filter((item) => item.status === status).length;
@@ -325,10 +464,6 @@ export function JobTrackerManager({ initialApplications }: { initialApplications
                 </button>
               );
             })}
-          </div>
-
-          <div className="rounded-2xl border border-dashed border-white/10 bg-card/30 px-4 py-3 text-center text-xs text-slate-500">
-            Select a status to view applications.
           </div>
         </div>
       </div>
