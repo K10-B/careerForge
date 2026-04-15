@@ -1,16 +1,16 @@
-"use client";
+﻿"use client";
 
 import { format } from "date-fns";
-import { Check, ChevronDown, Loader2, Plus, Trash2 } from "lucide-react";
-import { useEffect, useRef, useState, useTransition } from "react";
+import { Check, ChevronDown, ExternalLink, Loader2, Plus, Trash2, X } from "lucide-react";
+import { type ReactNode, useEffect, useMemo, useRef, useState, useTransition } from "react";
 
 import { deleteJobApplicationAction, saveJobApplicationAction } from "@/app/dashboard/actions";
-import { applicationStatuses } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { applicationStatuses } from "@/lib/constants";
 
 type ApplicationItem = {
   id: string;
@@ -22,22 +22,145 @@ type ApplicationItem = {
   notes: string | null;
 };
 
-const statusTone: Record<ApplicationItem["status"], string> = {
-  WISHLIST: "border-slate-300 bg-slate-500/5",
-  APPLIED: "border-sky-300 bg-sky-500/5",
-  INTERVIEW: "border-amber-300 bg-amber-500/5",
-  OFFER: "border-emerald-300 bg-emerald-500/5",
-  REJECTED: "border-rose-300 bg-rose-500/5",
+type NotesSections = {
+  summary: string[];
+  responsibilities: string[];
+  techStack: string[];
+  extra: string[];
 };
+
+const statusTone: Record<ApplicationItem["status"], string> = {
+  WISHLIST: "border-slate-300/25 bg-slate-500/5 text-slate-100",
+  APPLIED: "border-sky-300/25 bg-sky-500/5 text-sky-100",
+  INTERVIEW: "border-amber-300/25 bg-amber-500/5 text-amber-100",
+  OFFER: "border-emerald-300/25 bg-emerald-500/5 text-emerald-100",
+  REJECTED: "border-rose-300/25 bg-rose-500/5 text-rose-100",
+};
+
+const previewClampStyle = {
+  display: "-webkit-box",
+  WebkitLineClamp: 4,
+  WebkitBoxOrient: "vertical" as const,
+  overflow: "hidden",
+};
+
+function getNotesPreview(notes: string | null) {
+  return notes?.trim() || "No notes yet. Add a short snapshot of the role, team, or next step.";
+}
+
+function isBulletLine(line: string) {
+  return /^[\u2022\-*]|^[\u{1F300}-\u{1FAFF}]/u.test(line.trim());
+}
+
+function cleanBullet(line: string) {
+  return line.replace(/^[\u2022\-*]\s*/u, "").trim();
+}
+
+function parseNotesSections(notes: string | null): NotesSections {
+  const lines = (notes ?? "")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  if (!lines.length) {
+    return { summary: [], responsibilities: [], techStack: [], extra: [] };
+  }
+
+  const summary: string[] = [];
+  const responsibilities: string[] = [];
+  const techStack: string[] = [];
+  const extra: string[] = [];
+
+  let mode: keyof NotesSections = "summary";
+
+  for (const line of lines) {
+    if (/^tech stack\s*:/i.test(line)) {
+      mode = "techStack";
+      techStack.push(line.replace(/^tech stack\s*:/i, "").trim());
+      continue;
+    }
+
+    if (isBulletLine(line)) {
+      if (mode !== "techStack") {
+        mode = "responsibilities";
+        responsibilities.push(cleanBullet(line));
+      } else {
+        extra.push(cleanBullet(line));
+      }
+      continue;
+    }
+
+    if (mode === "summary") {
+      summary.push(line);
+      continue;
+    }
+
+    if (mode === "techStack") {
+      techStack.push(line);
+      continue;
+    }
+
+    extra.push(line);
+  }
+
+  return { summary, responsibilities, techStack, extra };
+}
+
+function MetaRow({ application }: { application: ApplicationItem }) {
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[12px] text-muted-foreground">
+      <span>{application.appliedDate ? `Applied ${format(application.appliedDate, "MMM d, yyyy")}` : "No applied date yet"}</span>
+      {application.link ? (
+        <a href={application.link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-accent underline-offset-4 hover:underline" onClick={(event) => event.stopPropagation()}>
+          Open posting
+          <ExternalLink className="h-3.5 w-3.5" />
+        </a>
+      ) : null}
+    </div>
+  );
+}
+
+function ApplicationHeader({ application, showStatus = true }: { application: ApplicationItem; showStatus?: boolean }) {
+  return (
+    <div className="flex items-start justify-between gap-4">
+      <div className="min-w-0 space-y-1">
+        <p className="text-[1.05rem] font-semibold leading-7 tracking-tight text-foreground">{application.role}</p>
+        <p className="text-sm text-muted-foreground">{application.company}</p>
+      </div>
+      {showStatus ? (
+        <span className={`shrink-0 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${statusTone[application.status]}`}>
+          {application.status}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
+function NotesSection({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="space-y-2">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">{label}</p>
+      {children}
+    </div>
+  );
+}
 
 export function JobTrackerManager({ initialApplications }: { initialApplications: ApplicationItem[] }) {
   const [applications, setApplications] = useState(initialApplications);
   const [form, setForm] = useState({ company: "", role: "", status: "WISHLIST", appliedDate: "", link: "", notes: "" });
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [detailApplicationId, setDetailApplicationId] = useState<string | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<ApplicationItem["status"] | null>(null);
   const [message, setMessage] = useState("");
   const [isPending, startTransition] = useTransition();
   const [statusOpen, setStatusOpen] = useState(false);
   const statusRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    setApplications(initialApplications);
+    setDetailApplicationId((current) => (current && initialApplications.some((application) => application.id === current) ? current : null));
+    setSelectedStatus((current) => (current && initialApplications.some((application) => application.status === current) ? current : null));
+  }, [initialApplications]);
 
   useEffect(() => {
     function handlePointerDown(event: MouseEvent) {
@@ -49,6 +172,8 @@ export function JobTrackerManager({ initialApplications }: { initialApplications
     function handleEscape(event: KeyboardEvent) {
       if (event.key === "Escape") {
         setStatusOpen(false);
+        setDetailApplicationId(null);
+        setSelectedStatus(null);
       }
     }
 
@@ -61,145 +186,313 @@ export function JobTrackerManager({ initialApplications }: { initialApplications
     };
   }, []);
 
+  const filteredApplications = useMemo(
+    () => (selectedStatus ? applications.filter((application) => application.status === selectedStatus) : []),
+    [selectedStatus, applications],
+  );
+
+  const detailApplication = useMemo(
+    () => applications.find((application) => application.id === detailApplicationId) ?? null,
+    [applications, detailApplicationId],
+  );
+
+  const detailNotesSections = useMemo(() => parseNotesSections(detailApplication?.notes ?? null), [detailApplication?.notes]);
+
+  const hydrateFormFromApplication = (application: ApplicationItem) => {
+    setEditingId(application.id);
+    setForm({
+      company: application.company,
+      role: application.role,
+      status: application.status,
+      appliedDate: application.appliedDate ? format(application.appliedDate, "yyyy-MM-dd") : "",
+      link: application.link ?? "",
+      notes: application.notes ?? "",
+    });
+    setDetailApplicationId(null);
+    setSelectedStatus(null);
+  };
+
   return (
-    <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
-      <Card>
-        <CardHeader>
-          <CardTitle>Application details</CardTitle>
-          <CardDescription>Track the role, link, timing, and notes so nothing slips between tabs.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2"><Label>Company</Label><Input value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} /></div>
-          <div className="space-y-2"><Label>Role</Label><Input value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} /></div>
-          <div className="space-y-2">
-            <Label htmlFor="application-status-button">Status</Label>
-            <div ref={statusRef} className="relative">
-              <button
-                id="application-status-button"
-                type="button"
-                aria-haspopup="listbox"
-                aria-expanded={statusOpen}
-                className="flex h-12 w-full items-center justify-between rounded-2xl border border-input bg-background/70 px-4 text-sm font-medium text-foreground transition hover:border-border hover:bg-background/85 focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/15"
-                onClick={() => setStatusOpen((current) => !current)}
-              >
-                <span>{form.status}</span>
-                <ChevronDown className={`h-4 w-4 text-muted-foreground transition ${statusOpen ? "rotate-180" : "rotate-0"}`} />
-              </button>
+    <>
+      <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+        <Card>
+          <CardHeader>
+            <CardTitle>Application details</CardTitle>
+            <CardDescription>Track the role, link, timing, and notes so nothing slips between tabs.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2"><Label>Company</Label><Input value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} /></div>
+            <div className="space-y-2"><Label>Role</Label><Input value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} /></div>
+            <div className="space-y-2">
+              <Label htmlFor="application-status-button">Status</Label>
+              <div ref={statusRef} className="relative">
+                <button
+                  id="application-status-button"
+                  type="button"
+                  aria-haspopup="listbox"
+                  aria-expanded={statusOpen}
+                  className="flex h-12 w-full items-center justify-between rounded-2xl border border-input bg-background/70 px-4 text-sm font-medium text-foreground transition hover:border-border hover:bg-background/85 focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/15"
+                  onClick={() => setStatusOpen((current) => !current)}
+                >
+                  <span>{form.status}</span>
+                  <ChevronDown className={`h-4 w-4 text-muted-foreground transition ${statusOpen ? "rotate-180" : "rotate-0"}`} />
+                </button>
 
-              {statusOpen ? (
-                <div className="absolute left-0 right-0 top-[calc(100%+10px)] z-20 overflow-hidden rounded-2xl border border-white/8 bg-slate-950/96 p-2 shadow-[0_20px_50px_rgba(2,6,23,0.45)] backdrop-blur-xl">
-                  <div role="listbox" aria-label="Application status options" className="space-y-1">
-                    {applicationStatuses.map((status) => {
-                      const selected = status === form.status;
-                      return (
-                        <button
-                          key={status}
-                          type="button"
-                          role="option"
-                          aria-selected={selected}
-                          className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm transition ${selected ? "bg-sky-400/12 text-white" : "text-slate-300 hover:bg-white/[0.05] hover:text-white"}`}
-                          onClick={() => {
-                            setForm({ ...form, status });
-                            setStatusOpen(false);
-                          }}
-                        >
-                          <span>{status}</span>
-                          {selected ? <Check className="h-4 w-4 text-sky-300" /> : null}
-                        </button>
-                      );
-                    })}
+                {statusOpen ? (
+                  <div className="absolute left-0 right-0 top-[calc(100%+10px)] z-20 overflow-hidden rounded-2xl border border-white/8 bg-slate-950/96 p-2 shadow-[0_20px_50px_rgba(2,6,23,0.45)] backdrop-blur-xl">
+                    <div role="listbox" aria-label="Application status options" className="space-y-1">
+                      {applicationStatuses.map((status) => {
+                        const selected = status === form.status;
+                        return (
+                          <button
+                            key={status}
+                            type="button"
+                            role="option"
+                            aria-selected={selected}
+                            className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm transition ${selected ? "bg-sky-400/12 text-white" : "text-slate-300 hover:bg-white/[0.05] hover:text-white"}`}
+                            onClick={() => {
+                              setForm({ ...form, status });
+                              setStatusOpen(false);
+                            }}
+                          >
+                            <span>{status}</span>
+                            {selected ? <Check className="h-4 w-4 text-sky-300" /> : null}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              ) : null}
+                ) : null}
+              </div>
             </div>
-          </div>
-          <div className="space-y-2"><Label>Applied date</Label><Input type="date" value={form.appliedDate} onChange={(e) => setForm({ ...form, appliedDate: e.target.value })} /></div>
-          <div className="space-y-2"><Label>Job link</Label><Input type="url" value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} /></div>
-          <div className="space-y-2"><Label>Notes</Label><Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="min-h-[140px]" /></div>
-          <Button
-            className="w-full"
-            variant="accent"
-            disabled={isPending}
-            onClick={() => {
-              setMessage("");
-              startTransition(async () => {
-                try {
-                  await saveJobApplicationAction({ id: editingId ?? undefined, values: form });
-                  setMessage(editingId ? "Application updated." : "Application added.");
-                  setEditingId(null);
-                  setForm({ company: "", role: "", status: "WISHLIST", appliedDate: "", link: "", notes: "" });
-                  location.reload();
-                } catch (error) {
-                  setMessage(error instanceof Error ? error.message : "Unable to save application.");
-                }
-              });
-            }}
-          >
-            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-            {editingId ? "Update application" : "Add application"}
-          </Button>
-          {message ? <p className="text-sm text-muted-foreground">{message}</p> : null}
-        </CardContent>
-      </Card>
+            <div className="space-y-2"><Label>Applied date</Label><Input type="date" value={form.appliedDate} onChange={(e) => setForm({ ...form, appliedDate: e.target.value })} /></div>
+            <div className="space-y-2"><Label>Job link</Label><Input type="url" value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} /></div>
+            <div className="space-y-2"><Label>Notes</Label><Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="min-h-[140px]" /></div>
+            <Button
+              className="w-full"
+              variant="accent"
+              disabled={isPending}
+              onClick={() => {
+                setMessage("");
+                startTransition(async () => {
+                  try {
+                    await saveJobApplicationAction({ id: editingId ?? undefined, values: form });
+                    setMessage(editingId ? "Application updated." : "Application added.");
+                    setEditingId(null);
+                    setForm({ company: "", role: "", status: "WISHLIST", appliedDate: "", link: "", notes: "" });
+                    location.reload();
+                  } catch (error) {
+                    setMessage(error instanceof Error ? error.message : "Unable to save application.");
+                  }
+                });
+              }}
+            >
+              {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
+              {editingId ? "Update application" : "Add application"}
+            </Button>
+            {message ? <p className="text-sm text-muted-foreground">{message}</p> : null}
+          </CardContent>
+        </Card>
 
-      <div className="space-y-4">
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {applicationStatuses.map((status) => (
-            <Card key={status} className="bg-card/60">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">{status}</CardTitle>
-                <CardDescription>{applications.filter((item) => item.status === status).length} roles</CardDescription>
-              </CardHeader>
-            </Card>
-          ))}
-        </div>
-        <div className="grid gap-4 lg:grid-cols-2">
-          {applications.map((application) => (
-            <Card key={application.id} className={`border ${statusTone[application.status]}`}>
-              <CardContent className="space-y-4 p-5">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-lg font-semibold">{application.role}</p>
-                    <p className="text-sm text-muted-foreground">{application.company}</p>
-                  </div>
-                  <span className="rounded-full border border-border/60 px-3 py-1 text-xs font-medium">{application.status}</span>
-                </div>
-                <div className="space-y-1 text-sm text-muted-foreground">
-                  <p>{application.appliedDate ? format(application.appliedDate, "MMM d, yyyy") : "No applied date yet"}</p>
-                  {application.link ? <a href={application.link} target="_blank" className="text-accent underline-offset-4 hover:underline">Open posting</a> : null}
-                  {application.notes ? <p>{application.notes}</p> : null}
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setEditingId(application.id);
-                      setForm({
-                        company: application.company,
-                        role: application.role,
-                        status: application.status,
-                        appliedDate: application.appliedDate ? format(application.appliedDate, "yyyy-MM-dd") : "",
-                        link: application.link ?? "",
-                        notes: application.notes ?? "",
-                      });
-                    }}
+        <div className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {applicationStatuses.map((status) => {
+              const count = applications.filter((item) => item.status === status).length;
+              const active = selectedStatus === status;
+              return (
+                <button
+                  key={status}
+                  type="button"
+                  className="group text-left"
+                  onClick={() => setSelectedStatus(status)}
+                >
+                  <Card
+                    className={`relative overflow-hidden rounded-[24px] transition-all duration-200 ease-out ${
+                      active
+                        ? "border-sky-400/25 bg-[linear-gradient(180deg,rgba(30,41,59,0.98),rgba(15,23,42,0.96))] shadow-[0_18px_44px_rgba(15,23,42,0.32)] ring-1 ring-sky-400/10"
+                        : "border-white/8 bg-[linear-gradient(180deg,rgba(17,24,39,0.94),rgba(15,23,42,0.96))] hover:-translate-y-0.5 hover:scale-[1.01] hover:border-white/14 hover:bg-[linear-gradient(180deg,rgba(23,31,48,0.98),rgba(15,23,42,0.98))] hover:shadow-[0_18px_36px_rgba(15,23,42,0.26)]"
+                    }`}
                   >
-                    Edit
+                    <div className={`absolute inset-x-0 top-0 h-px transition-opacity duration-200 ${active ? "bg-sky-400/60 opacity-100" : "bg-white/15 opacity-0 group-hover:opacity-100"}`} />
+                    <CardHeader className="flex min-h-[176px] flex-col items-center justify-center gap-4 px-6 py-6 text-center">
+                      <CardTitle className="text-[1.1rem] font-semibold tracking-[0.015em] text-slate-100">{status}</CardTitle>
+                      <CardDescription className="text-[1.5rem] font-semibold leading-none text-slate-200">{count} roles</CardDescription>
+                      <p className="text-[11px] text-slate-500 transition-colors duration-200 group-hover:text-slate-300">
+                        {active ? "Viewing applications" : "Tap to open"}
+                      </p>
+                    </CardHeader>
+                  </Card>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="rounded-2xl border border-dashed border-white/10 bg-card/30 px-4 py-3 text-center text-xs text-slate-500">
+            Select a status to view applications.
+          </div>
+        </div>
+      </div>
+
+      {selectedStatus ? (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm" onClick={() => setSelectedStatus(null)}>
+          <div className="w-full max-w-5xl" onClick={(event) => event.stopPropagation()}>
+            <Card className="border-white/10 bg-card/92 shadow-[0_24px_80px_rgba(2,6,23,0.45)]">
+              <CardContent className="space-y-4 p-5 sm:p-6">
+                <div className="flex items-start justify-between gap-4 border-b border-white/6 pb-4">
+                  <div className="min-w-0 space-y-1">
+                    <p className="text-xl font-semibold tracking-tight text-foreground">{selectedStatus}</p>
+                    <p className="text-sm text-muted-foreground">{filteredApplications.length} application{filteredApplications.length === 1 ? "" : "s"}</p>
+                  </div>
+                  <Button variant="ghost" size="icon" className="shrink-0" onClick={() => setSelectedStatus(null)}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                {filteredApplications.length ? (
+                  <div className="grid max-h-[70vh] gap-4 overflow-y-auto pr-1 lg:grid-cols-2">
+                    {filteredApplications.map((application) => (
+                      <Card
+                        key={application.id}
+                        className="cursor-pointer border border-white/8 bg-card/60 transition-colors hover:border-white/15 hover:bg-card/72"
+                        onClick={() => setDetailApplicationId(application.id)}
+                      >
+                        <CardContent className="space-y-4 p-5">
+                          <div className="space-y-3 border-b border-white/6 pb-3">
+                            <ApplicationHeader application={application} showStatus={false} />
+                            <MetaRow application={application} />
+                          </div>
+
+                          <div className="rounded-2xl border border-white/6 bg-background/42 px-4 py-3">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">Preview</p>
+                            <p className="mt-2 min-h-[84px] text-[13px] leading-6 text-slate-300/90" style={previewClampStyle}>
+                              {getNotesPreview(application.notes)}
+                            </p>
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-2 border-t border-white/6 pt-3">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                hydrateFormFromApplication(application);
+                              }}
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                startTransition(async () => { await deleteJobApplicationAction(application.id); location.reload(); });
+                              }}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />Delete
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <Card className="border-dashed border-white/10 bg-card/40">
+                    <CardContent className="p-5 text-sm text-muted-foreground">
+                      {`No ${selectedStatus.toLowerCase()} applications yet.`}
+                    </CardContent>
+                  </Card>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      ) : null}
+
+      {detailApplication ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm" onClick={() => setDetailApplicationId(null)}>
+          <div className="w-full max-w-2xl" onClick={(event) => event.stopPropagation()}>
+            <Card className="border-white/10 bg-card/92 shadow-[0_24px_80px_rgba(2,6,23,0.45)]">
+              <CardContent className="space-y-4 p-5 sm:p-6">
+                <div className="flex items-start justify-between gap-4 border-b border-white/6 pb-4">
+                  <div className="min-w-0 flex-1 space-y-3">
+                    <ApplicationHeader application={detailApplication} />
+                    <MetaRow application={detailApplication} />
+                  </div>
+                  <Button variant="ghost" size="icon" className="shrink-0" onClick={() => setDetailApplicationId(null)}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                <div className="rounded-2xl border border-white/6 bg-background/50 px-4 py-4">
+                  <div className="max-h-[60vh] space-y-5 overflow-y-auto pr-1">
+                    {detailNotesSections.summary.length ? (
+                      <NotesSection label="Summary / Description">
+                        <div className="space-y-2 text-[13px] leading-6 text-slate-300/95">
+                          {detailNotesSections.summary.map((line, index) => (
+                            <p key={`summary-${index}`}>{line}</p>
+                          ))}
+                        </div>
+                      </NotesSection>
+                    ) : null}
+
+                    {detailNotesSections.responsibilities.length ? (
+                      <NotesSection label="Responsibilities">
+                        <ul className="space-y-2 pl-4 text-[13px] leading-6 text-slate-300/90 marker:text-slate-400">
+                          {detailNotesSections.responsibilities.map((item, index) => (
+                            <li key={`responsibility-${index}`}>{item}</li>
+                          ))}
+                        </ul>
+                      </NotesSection>
+                    ) : null}
+
+                    {detailNotesSections.techStack.length ? (
+                      <NotesSection label="Tech stack">
+                        <div className="space-y-1 text-[13px] leading-6 text-slate-300/90">
+                          {detailNotesSections.techStack.map((line, index) => (
+                            <p key={`tech-${index}`}>{line}</p>
+                          ))}
+                        </div>
+                      </NotesSection>
+                    ) : null}
+
+                    {detailNotesSections.extra.length ? (
+                      <NotesSection label="Extra notes">
+                        <div className="space-y-2 text-[13px] leading-6 text-slate-300/85">
+                          {detailNotesSections.extra.map((line, index) => (
+                            <p key={`extra-${index}`}>{line}</p>
+                          ))}
+                        </div>
+                      </NotesSection>
+                    ) : null}
+
+                    {!detailApplication.notes?.trim() ? (
+                      <p className="text-sm text-slate-400">No notes added for this application yet.</p>
+                    ) : null}
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 border-t border-white/6 pt-3">
+                  <Button variant="outline" size="sm" onClick={() => hydrateFormFromApplication(detailApplication)}>
+                    Edit application
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => startTransition(async () => { await deleteJobApplicationAction(application.id); location.reload(); })}
+                    onClick={() => startTransition(async () => { await deleteJobApplicationAction(detailApplication.id); location.reload(); })}
                   >
                     <Trash2 className="mr-2 h-4 w-4" />Delete
                   </Button>
                 </div>
               </CardContent>
             </Card>
-          ))}
+          </div>
         </div>
-      </div>
-    </div>
+      ) : null}
+    </>
   );
 }
+
+
+
+
+
