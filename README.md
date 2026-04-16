@@ -1,4 +1,4 @@
-# CareerForge AI
+﻿# CareerForge AI
 
 CareerForge AI is a production-ready SaaS application for modern job seekers who want better resumes, tailored cover letters, and a cleaner application workflow.
 
@@ -24,6 +24,7 @@ CareerForge AI is a production-ready SaaS application for modern job seekers who
 - Resume builder with live preview and focus preview
 - Shared resume document renderer for preview and PDF export
 - Direct resume PDF download powered by Playwright from the shared export route
+- Resume cards include an in-app preview modal with dark-theme loading skeletons
 - AI resume bullet rewriting actions
 - Cover letter generator powered by Gemini
 - Job application tracker with CRUD flows
@@ -43,33 +44,53 @@ GEMINI_MODEL="gemini-2.5-flash"
 NEXTAUTH_URL="http://localhost:3000"
 ```
 
+## Runtime Requirement
+
+- Use Node.js `22` locally when possible.
+- The project is tested primarily on Node `20`, `22`, and `24` LTS-style runtimes.
+- Node `25` is allowed with a warning instead of a hard block, but it may still trigger native Next.js/V8 crashes on some Windows setups.
+- The repo includes `.nvmrc` set to `22`.
+
+If you use `nvm`, switch first:
+
+```bash
+nvm use 22
+node -v
+```
 ## Local Setup
 
-1. Install dependencies:
+1. Switch to Node `22` if needed:
+
+```bash
+nvm use 22
+node -v
+```
+
+2. Install dependencies:
 
 ```bash
 npm install
 ```
 
-2. Generate Prisma client:
+3. Generate Prisma client:
 
 ```bash
 npx prisma generate
 ```
 
-3. Push the schema to your PostgreSQL database:
+4. Push the schema to your PostgreSQL database:
 
 ```bash
 npx prisma db push
 ```
 
-4. Start the development server:
+5. Start the development server:
 
 ```bash
 npm run dev
 ```
 
-5. Open `http://localhost:3000`.
+6. Open `http://localhost:3000`.
 
 ## Auth Notes
 
@@ -91,6 +112,7 @@ npm run dev
 - The preview calculates a fit level so dense resumes can stay closer to one page without aggressive compression.
 - Resume PDF export is generated from the shared HTML/CSS document path through `/resumes/[id]/export` and `/resumes/[id]/export-pdf`.
 - Export now downloads directly without opening a visible print popup or export tab.
+- Resume workspaces include a `View details` popup that opens the shared resume preview in a centered modal.
 - PDF export uses the same fit level as the preview to keep spacing and line breaks more consistent.
 - The resume builder supports optional sections such as projects, certifications, references, GitHub, and LinkedIn.
 - Experience and project bullets are rendered with explicit bullet markers to keep alignment stable in exported PDFs.
@@ -121,8 +143,11 @@ The app is ready for Vercel deployment.
 
 ## Verification
 
-Production build completed successfully with:
+Production build completes successfully on supported Node LTS runtimes with:
 
 ```bash
 npm run build
 ```
+
+
+

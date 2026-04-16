@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { ArrowRight, BrainCircuit, FilePlus2, PenSquare, X } from "lucide-react";
 
 import { deleteResumeFormAction } from "@/app/dashboard/actions";
@@ -29,7 +29,7 @@ export default async function DashboardPage() {
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatsCard label="Resumes" value={stats.resumes} helper="Active resume workspaces" />
         <StatsCard label="Cover letters" value={stats.coverLetters} helper="Saved tailored drafts" />
-        <StatsCard label="Active roles" value={stats.activeApplications} helper="Everything still in motion" />
+        <StatsCard label="Active roles" value={stats.activeApplications} helper="Applications currently in progress" />
         <StatsCard label="Interviews" value={stats.interviews} helper="Conversations progressing" />
       </section>
 
@@ -130,7 +130,12 @@ export default async function DashboardPage() {
             {applications.length ? (
               <div className="space-y-3">
                 {applications.map((application) => (
-                  <div key={application.id} className="rounded-[24px] border border-border/70 bg-background/70 p-4">
+                  <Link
+                    key={application.id}
+                    href="/dashboard/job-tracker"
+                    className="block rounded-[24px] border border-border/70 bg-background/70 p-4 transition hover:-translate-y-0.5 hover:border-border hover:bg-background/85 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+                    aria-label={`Open job tracker for ${application.role} at ${application.company}`}
+                  >
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <p className="font-medium">{application.role}</p>
@@ -138,7 +143,7 @@ export default async function DashboardPage() {
                       </div>
                       <span className="rounded-full border border-border/70 px-3 py-1 text-xs font-medium">{application.status}</span>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             ) : (
@@ -150,3 +155,4 @@ export default async function DashboardPage() {
     </div>
   );
 }
+

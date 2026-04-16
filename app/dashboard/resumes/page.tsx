@@ -1,10 +1,11 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { ArrowLeft, X } from "lucide-react";
 
 import { deleteResumeFormAction } from "@/app/dashboard/actions";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ResumePreviewDialogTrigger } from "@/components/resume/resume-preview-dialog-trigger";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/data";
 
@@ -45,9 +46,14 @@ export default async function ResumesPage() {
                   </Button>
                 </form>
               </CardHeader>
-              <CardContent>
-                <p className="line-clamp-2 text-sm text-muted-foreground">{resume.summary}</p>
-                <Button asChild className="mt-6" variant="outline"><Link href={`/dashboard/resumes/${resume.id}`}>Open editor</Link></Button>
+              <CardContent className="flex min-h-[170px] flex-col">
+                <div className="min-h-[56px]">
+                  <p className="line-clamp-2 text-sm text-muted-foreground">{resume.summary || "No summary yet."}</p>
+                </div>
+                <div className="mt-auto flex flex-wrap items-center gap-2">
+                  <Button asChild className="w-fit" variant="outline"><Link href={`/dashboard/resumes/${resume.id}`}>Open editor</Link></Button>
+                  <ResumePreviewDialogTrigger resumeId={resume.id} title={resume.title} />
+                </div>
               </CardContent>
             </Card>
           ))}
@@ -58,3 +64,6 @@ export default async function ResumesPage() {
     </div>
   );
 }
+
+
+

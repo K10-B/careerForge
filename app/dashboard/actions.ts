@@ -1,11 +1,11 @@
-"use server";
+﻿"use server";
 
 import { ApplicationStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { coverLetterSchema, jobApplicationSchema, resumeSchema } from "@/lib/validations";
+import { coverLetterSchema, jobApplicationSchema, resumeDraftSchema } from "@/lib/validations";
 import { slugify } from "@/lib/utils";
 
 async function getActionUserId() {
@@ -26,8 +26,9 @@ async function ensureUsage(userId: string) {
 
 export async function saveResumeAction(input: { id?: string; values: unknown }) {
   const userId = await getActionUserId();
-  const values = resumeSchema.parse(input.values);
-  const slugBase = slugify(values.title);
+  const values = resumeDraftSchema.parse(input.values);
+  const normalizedTitle = values.title.trim() || "Untitled resume";
+  const slugBase = slugify(normalizedTitle);
   const slug = input.id ? slugBase : `${slugBase}-${Date.now()}`;
   const normalizedCertifications = (values.certifications ?? [])
     .map((certification) => ({
@@ -48,7 +49,7 @@ export async function saveResumeAction(input: { id?: string; values: unknown }) 
     }))
     .filter((project) => project.name || project.description || project.techStack || project.link);
   const skillsPayload = {
-    items: values.skills,
+    items: values.skills.map((skill) => skill.trim()).filter(Boolean),
     projects: normalizedProjects,
     certifications: normalizedCertifications,
     references: values.references ?? [],
@@ -58,23 +59,71 @@ export async function saveResumeAction(input: { id?: string; values: unknown }) 
     ? await prisma.resume.update({
         where: { id: input.id },
         data: {
-          title: values.title,
+          title: normalizedTitle,
           slug,
-          summary: values.summary,
-          personal: values.personal,
-          experience: values.experience,
-          education: values.education,
+          summary: values.summary.trim(),
+          personal: {
+            ...values.personal,
+            fullName: values.personal.fullName.trim(),
+            role: values.personal.role.trim(),
+            email: values.personal.email.trim(),
+            phone: values.personal.phone.trim(),
+            location: values.personal.location.trim(),
+            website: values.personal.website?.trim() ?? "",
+            github: values.personal.github?.trim() ?? "",
+            linkedin: values.personal.linkedin?.trim() ?? "",
+          },
+          experience: values.experience.map((item) => ({
+            ...item,
+            id: item.id || crypto.randomUUID(),
+            company: item.company.trim(),
+            role: item.role.trim(),
+            startDate: item.startDate.trim(),
+            endDate: item.endDate.trim(),
+            bullets: item.bullets.map((bullet) => bullet.trim()),
+          })),
+          education: values.education.map((item) => ({
+            ...item,
+            id: item.id || crypto.randomUUID(),
+            school: item.school.trim(),
+            degree: item.degree.trim(),
+            year: item.year.trim(),
+          })),
           skills: skillsPayload,
         },
       })
     : await prisma.resume.create({
         data: {
-          title: values.title,
+          title: normalizedTitle,
           slug,
-          summary: values.summary,
-          personal: values.personal,
-          experience: values.experience,
-          education: values.education,
+          summary: values.summary.trim(),
+          personal: {
+            ...values.personal,
+            fullName: values.personal.fullName.trim(),
+            role: values.personal.role.trim(),
+            email: values.personal.email.trim(),
+            phone: values.personal.phone.trim(),
+            location: values.personal.location.trim(),
+            website: values.personal.website?.trim() ?? "",
+            github: values.personal.github?.trim() ?? "",
+            linkedin: values.personal.linkedin?.trim() ?? "",
+          },
+          experience: values.experience.map((item) => ({
+            ...item,
+            id: item.id || crypto.randomUUID(),
+            company: item.company.trim(),
+            role: item.role.trim(),
+            startDate: item.startDate.trim(),
+            endDate: item.endDate.trim(),
+            bullets: item.bullets.map((bullet) => bullet.trim()),
+          })),
+          education: values.education.map((item) => ({
+            ...item,
+            id: item.id || crypto.randomUUID(),
+            school: item.school.trim(),
+            degree: item.degree.trim(),
+            year: item.year.trim(),
+          })),
           skills: skillsPayload,
           userId,
         },

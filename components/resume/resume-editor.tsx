@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Expand, FileText, Loader2, Minus, Plus, Sparkles, Trash2, X } from "lucide-react";
 import { motion } from "framer-motion";
@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { exportResumeToPDF } from "@/lib/exportResumeToPDF";
+import { getResumeExportValidationMessage } from "@/lib/validations";
 import { joinProjectDescription, splitProjectDescription } from "@/lib/projectBullets";
 import { cn } from "@/lib/utils";
 import type { ResumeFormValues } from "@/types";
@@ -914,6 +915,7 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
     </>
   );
 }
+
 
 
 

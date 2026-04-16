@@ -1,4 +1,4 @@
-import { z } from "zod";
+﻿import { z } from "zod";
 
 export const signUpSchema = z.object({
   name: z.string().min(2, "Name is too short."),
@@ -34,18 +34,46 @@ const educationSchema = z.object({
 });
 
 const projectSchema = z.object({
-  id: z.string(),
+  id: z.string().optional().default(""),
   name: z.string().optional().default(""),
   description: z.string().optional().default(""),
   techStack: z.string().optional().default(""),
   link: z.string().optional().default(""),
 });
+
 const certificationSchema = z.object({
-  id: z.string(),
+  id: z.string().optional().default(""),
   name: z.string().optional().default(""),
   startDate: z.string().optional().default(""),
   endDate: z.string().optional().default(""),
   issuer: z.string().optional().default(""),
+});
+
+const draftPersonalSchema = z.object({
+  fullName: z.string().default(""),
+  role: z.string().default(""),
+  email: z.string().default(""),
+  phone: z.string().default(""),
+  location: z.string().default(""),
+  website: z.string().optional().default(""),
+  github: z.string().optional().default(""),
+  linkedin: z.string().optional().default(""),
+});
+
+const draftExperienceSchema = z.object({
+  id: z.string().default(""),
+  company: z.string().default(""),
+  role: z.string().default(""),
+  startDate: z.string().default(""),
+  endDate: z.string().default(""),
+  bullets: z.array(z.string().default("")).default([""]),
+});
+
+const draftEducationSchema = z.object({
+  id: z.string().default(""),
+  school: z.string().default(""),
+  degree: z.string().default(""),
+  year: z.string().default(""),
 });
 
 export const resumeSchema = z.object({
@@ -58,6 +86,27 @@ export const resumeSchema = z.object({
   projects: z.array(projectSchema).optional().default([]),
   certifications: z.array(certificationSchema).optional().default([]),
   references: z.array(z.string().min(2)).optional().default([]),
+});
+
+export const resumeDraftSchema = z.object({
+  title: z.string().default("Untitled resume"),
+  summary: z.string().default(""),
+  personal: draftPersonalSchema.default({
+    fullName: "",
+    role: "",
+    email: "",
+    phone: "",
+    location: "",
+    website: "",
+    github: "",
+    linkedin: "",
+  }),
+  experience: z.array(draftExperienceSchema).default([]),
+  education: z.array(draftEducationSchema).default([]),
+  skills: z.array(z.string().default("")).default([]),
+  projects: z.array(projectSchema).optional().default([]),
+  certifications: z.array(certificationSchema).optional().default([]),
+  references: z.array(z.string().default("")).optional().default([]),
 });
 
 export const jobApplicationSchema = z.object({
@@ -81,3 +130,14 @@ export const improveBulletSchema = z.object({
   action: z.enum(["improve", "shorten", "professionalize", "achievement-focused"]),
   role: z.string().optional(),
 });
+
+export function getResumeExportValidationMessage(values: unknown) {
+  const result = resumeSchema.safeParse(values);
+
+  if (result.success) {
+    return null;
+  }
+
+  const firstIssue = result.error.issues[0];
+  return `Complete your resume before exporting. ${firstIssue?.message ?? "Please fill in the required sections."}`;
+}

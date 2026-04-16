@@ -1,8 +1,9 @@
-import { NextResponse, type NextRequest } from "next/server";
+﻿import { NextResponse, type NextRequest } from "next/server";
 import { chromium } from "playwright";
 
 import { auth } from "@/lib/auth";
-import { getResumeById } from "@/lib/data";
+import { getResumeById, parseResume } from "@/lib/data";
+import { getResumeExportValidationMessage } from "@/lib/validations";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -29,6 +30,13 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
 
   if (!resume) {
     return new NextResponse("Resume not found.", { status: 404 });
+  }
+
+  const parsedResume = parseResume(resume);
+  const exportValidationMessage = getResumeExportValidationMessage(parsedResume);
+
+  if (exportValidationMessage) {
+    return new NextResponse(exportValidationMessage, { status: 400 });
   }
 
   const browser = await chromium.launch({ headless: true });
@@ -82,6 +90,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
     await browser.close();
   }
 }
+
 
 
 
