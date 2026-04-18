@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Check, ChevronDown, Copy, Loader2, Save, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState, useTransition } from "react";
@@ -66,8 +66,8 @@ export function CoverLetterStudio({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2"><Label>Role</Label><Input value={role} onChange={(e) => setRole(e.target.value)} placeholder="Senior Product Manager" /></div>
-            <div className="space-y-2"><Label>Company</Label><Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Acme" /></div>
+            <div className="space-y-2"><Label>Role</Label><Input value={role} onChange={(e) => setRole(e.target.value)} /></div>
+            <div className="space-y-2"><Label>Company</Label><Input value={company} onChange={(e) => setCompany(e.target.value)} /></div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="cover-letter-tone-button">Tone</Label>
@@ -113,7 +113,7 @@ export function CoverLetterStudio({
           </div>
           <div className="space-y-2">
             <Label>Job description</Label>
-            <Textarea value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} placeholder="Paste the job description or key responsibilities here..." className="min-h-[220px]" />
+            <Textarea value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} placeholder="Drop the role brief here, and we will shape the first draft..." className="min-h-[220px]" />
           </div>
           <div className="flex flex-wrap gap-3">
             <Button
@@ -209,3 +209,6 @@ export function CoverLetterStudio({
     </div>
   );
 }
+
+
+

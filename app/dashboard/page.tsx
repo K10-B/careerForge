@@ -40,7 +40,7 @@ export default async function DashboardPage() {
               <CardTitle>Recent resumes</CardTitle>
               <CardDescription>Pick up where you left off and keep iterating fast.</CardDescription>
             </div>
-            <Button asChild variant="ghost"><Link href="/dashboard/resumes">View all</Link></Button>
+            <Button asChild variant="ghost" className="rounded-full border border-white/8 bg-white/[0.04] px-4 text-slate-200 shadow-[0_8px_24px_rgba(2,6,23,0.18)] hover:bg-white/[0.07] hover:text-white"><Link href="/dashboard/resumes">View all</Link></Button>
           </CardHeader>
           <CardContent>
             {resumes.length ? (
@@ -155,4 +155,5 @@ export default async function DashboardPage() {
     </div>
   );
 }
+
 

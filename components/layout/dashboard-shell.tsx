@@ -1,8 +1,8 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BriefcaseBusiness, FileText, LayoutDashboard, PenSquare, Settings } from "lucide-react";
+import { ArrowLeft, BriefcaseBusiness, FileText, LayoutDashboard, PenSquare, Settings } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 
@@ -66,6 +66,13 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 </motion.div>
               );
             })}
+            <Link
+              href="/"
+              className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm text-muted-foreground transition-all duration-200 hover:bg-muted hover:text-foreground"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to landing page
+            </Link>
           </nav>
 
           <div className="mt-6 rounded-[28px] border border-border/70 bg-background/80 p-4">
@@ -89,3 +96,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+
+
+
+
