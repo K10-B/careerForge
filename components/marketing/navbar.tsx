@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, Sparkles, X } from "lucide-react";
@@ -26,8 +27,8 @@ export function MarketingNavbar() {
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <Link href="/" className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-emerald-500 text-sm font-semibold text-white shadow-lg shadow-sky-500/20">
-            CF
+          <div className="-translate-y-0.5 flex h-11 w-11 items-center justify-center overflow-hidden">
+            <Image src="/forge-icon.png" alt="CareerForge icon" width={44} height={44} className="h-full w-full object-contain" priority />
           </div>
           <div>
             <p className="font-semibold">CareerForge AI</p>
@@ -50,11 +51,11 @@ export function MarketingNavbar() {
               <Link
                 href="/dashboard"
                 aria-label="Open dashboard"
-                className="group relative flex h-12 w-12 items-center justify-center rounded-full border border-sky-400/45 bg-sky-500/12 text-sm font-semibold text-foreground shadow-[0_0_0_1px_rgba(14,165,233,0.12),0_12px_32px_rgba(14,165,233,0.12)] transition-all duration-200 hover:-translate-y-0.5 hover:border-sky-300/70 hover:bg-sky-500/16 hover:shadow-[0_0_0_1px_rgba(56,189,248,0.18),0_18px_38px_rgba(14,165,233,0.18)]"
+                className="group relative flex h-10 w-10 items-center justify-center rounded-full border-2 border-cyan-300/70 bg-gradient-to-br from-[#163a63] via-[#102742] to-[#0b1323] text-sm font-extrabold text-white shadow-[0_0_0_1px_rgba(103,232,249,0.24),0_8px_20px_rgba(2,6,23,0.24)] transition-all duration-200 hover:-translate-y-0.5 hover:border-cyan-200/90 hover:from-[#1a4777] hover:via-[#13304f] hover:to-[#0b1323] hover:shadow-[0_0_0_1px_rgba(103,232,249,0.2),0_14px_28px_rgba(2,6,23,0.32)]"
               >
-                <span>{userInitials}</span>
-                <span className="absolute bottom-0.5 right-0.5 flex h-4 w-4 items-center justify-center rounded-full border border-background bg-sky-500 shadow-[0_0_0_3px_rgba(14,165,233,0.18)]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                <span className="leading-none">{userInitials}</span>
+                <span className="absolute bottom-0 right-0 flex h-3 w-3 items-center justify-center rounded-full border-2 border-background bg-cyan-400 shadow-[0_0_0_3px_rgba(34,211,238,0.18)]">
+                  <span className="h-1 w-1 rounded-full bg-white" />
                 </span>
               </Link>
             </>
@@ -82,10 +83,10 @@ export function MarketingNavbar() {
             <Link
               href="/dashboard"
               aria-label="Open dashboard"
-              className="relative flex h-10 w-10 items-center justify-center rounded-full border border-sky-400/45 bg-sky-500/12 text-xs font-semibold text-foreground shadow-[0_0_0_1px_rgba(14,165,233,0.12),0_10px_24px_rgba(14,165,233,0.12)] transition-all duration-200 hover:border-sky-300/70 hover:bg-sky-500/16"
+              className="relative flex h-10 w-10 items-center justify-center rounded-full border-2 border-cyan-300/70 bg-gradient-to-br from-[#163a63] via-[#102742] to-[#0b1323] text-xs font-bold text-white shadow-[0_0_0_1px_rgba(103,232,249,0.2),0_10px_24px_rgba(2,6,23,0.24)] transition-all duration-200 hover:border-cyan-200/90 hover:from-[#1a4777] hover:via-[#13304f] hover:to-[#0b1323]"
             >
-              <span>{userInitials}</span>
-              <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border border-background bg-sky-500" />
+              <span className="leading-none">{userInitials}</span>
+              <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background bg-cyan-400 shadow-[0_0_0_3px_rgba(34,211,238,0.18)]" />
             </Link>
           ) : null}
           <Button variant="outline" size="icon" onClick={() => setOpen((value) => !value)}>
@@ -132,3 +133,5 @@ export function MarketingNavbar() {
     </header>
   );
 }
+
+

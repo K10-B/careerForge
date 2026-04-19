@@ -1,14 +1,13 @@
 ﻿"use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowLeft, BriefcaseBusiness, FileText, LayoutDashboard, PenSquare, Settings, Sparkles } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 
 import { ThemeToggle } from "@/components/layout/theme-toggle";
-import { Button } from "@/components/ui/button";
-import { cn, initials } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
@@ -20,7 +19,6 @@ const links = [
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { data } = useSession();
 
   return (
     <div className="min-h-screen bg-background">
@@ -28,8 +26,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         <aside className="glass flex flex-col rounded-[32px] p-4 lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)] lg:w-72 lg:p-5">
           <div className="flex items-center justify-between gap-3 border-b border-border/70 pb-4">
             <Link href="/dashboard" className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-emerald-500 text-sm font-semibold text-white shadow-lg shadow-sky-500/25">
-                CF
+              <div className="-translate-y-0.5 flex h-11 w-11 items-center justify-center overflow-hidden">
+                <Image src="/forge-icon.png" alt="CareerForge icon" width={44} height={44} className="h-full w-full object-contain" priority />
               </div>
               <div>
                 <p className="font-semibold">CareerForge AI</p>
@@ -83,21 +81,6 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
               Back to home
             </Link>
           </nav>
-
-          <div className="mt-6 rounded-[22px] border border-border/70 bg-background/80 p-3 shadow-[0_8px_24px_rgba(2,6,23,0.1)] lg:mt-auto">
-            <div className="flex items-center gap-3 rounded-[18px] px-1 py-1">
-              <div className="flex h-9 w-9 items-center justify-center rounded-[18px] bg-secondary font-semibold text-secondary-foreground">
-                {initials(data?.user?.name)}
-              </div>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold leading-5">{data?.user?.name ?? "CareerForge user"}</p>
-                <p className="truncate text-xs leading-5 text-muted-foreground">{data?.user?.email}</p>
-              </div>
-            </div>
-            <Button className="mt-2.5 h-10 w-full rounded-[18px]" variant="outline" onClick={() => signOut({ callbackUrl: "/" })}>
-              Sign out
-            </Button>
-          </div>
         </aside>
 
         <main className="min-w-0 flex-1">{children}</main>
@@ -105,6 +88,5 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-
 
 

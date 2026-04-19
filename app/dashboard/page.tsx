@@ -2,6 +2,7 @@
 import { ArrowRight, BrainCircuit, FilePlus2, PenSquare, X } from "lucide-react";
 
 import { deleteResumeFormAction } from "@/app/dashboard/actions";
+import { DashboardProfileMenu } from "@/components/dashboard/dashboard-profile-menu";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { StatsCard } from "@/components/dashboard/stats-card";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,10 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <section className="rounded-[32px] border border-border/70 bg-card/70 p-8 backdrop-blur-xl">
-        <p className="text-sm font-medium text-accent">Welcome back, {user.name ?? "there"}</p>
+        <div className="flex items-start justify-between gap-4">
+          <p className="text-base font-semibold text-accent md:text-lg">Welcome back, {user.name ?? "there"}</p>
+          <DashboardProfileMenu name={user.name} email={user.email} />
+        </div>
         <div className="mt-3 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">Build stronger applications without the scramble.</h1>
@@ -155,3 +159,5 @@ export default async function DashboardPage() {
     </div>
   );
 }
+
+
