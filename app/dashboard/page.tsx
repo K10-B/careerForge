@@ -16,7 +16,7 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <section className="rounded-[32px] border border-border/70 bg-card/70 p-8 backdrop-blur-xl">
-        <p className="text-sm font-medium text-accent">Welcome back</p>
+        <p className="text-sm font-medium text-accent">Welcome back, {user.name ?? "there"}</p>
         <div className="mt-3 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">Build stronger applications without the scramble.</h1>
@@ -155,5 +155,3 @@ export default async function DashboardPage() {
     </div>
   );
 }
-
-

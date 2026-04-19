@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -98,6 +98,12 @@ export function SignUpForm() {
           <Button className="w-full" type="submit" variant="accent" disabled={isPending}>
             {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Start free"}
           </Button>
+          <Button asChild className="w-full" type="button" variant="outline">
+            <Link href="/">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to home
+            </Link>
+          </Button>
           <p className="text-sm text-muted-foreground">
             Already have an account?{" "}
             <Link href="/signin" className="font-medium text-foreground underline-offset-4 hover:underline">
@@ -109,3 +115,4 @@ export function SignUpForm() {
     </Card>
   );
 }
+

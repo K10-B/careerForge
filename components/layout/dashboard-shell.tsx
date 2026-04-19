@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowLeft, BriefcaseBusiness, FileText, LayoutDashboard, PenSquare, Settings } from "lucide-react";
+import { ArrowLeft, BriefcaseBusiness, FileText, LayoutDashboard, PenSquare, Settings, Sparkles } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 
@@ -25,7 +25,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-4 lg:flex-row lg:px-6 lg:py-6">
-        <aside className="glass rounded-[32px] p-4 lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)] lg:w-72 lg:p-5">
+        <aside className="glass flex flex-col rounded-[32px] p-4 lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)] lg:w-72 lg:p-5">
           <div className="flex items-center justify-between gap-3 border-b border-border/70 pb-4">
             <Link href="/dashboard" className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-emerald-500 text-sm font-semibold text-white shadow-lg shadow-sky-500/25">
@@ -39,7 +39,16 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             <ThemeToggle />
           </div>
 
-          <nav className="mt-5 grid gap-2">
+          <div className="mt-5 rounded-[24px] border border-sky-500/20 bg-gradient-to-br from-sky-500/10 via-sky-500/5 to-emerald-500/10 p-4 shadow-[0_12px_32px_rgba(14,165,233,0.08)]">
+            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-300/90">
+              <Sparkles className="h-3.5 w-3.5" />
+              Free tier
+            </div>
+            <p className="mt-2 text-sm font-medium text-foreground">Your workspace is active on the free plan.</p>
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">Keep building resumes, cover letters, and tracked roles in one calm flow.</p>
+          </div>
+
+          <nav className="mt-5 grid flex-1 gap-2 content-start">
             {links.map((link, index) => {
               const Icon = link.icon;
               const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
@@ -71,21 +80,21 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
               className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm text-muted-foreground transition-all duration-200 hover:bg-muted hover:text-foreground"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to landing page
+              Back to home
             </Link>
           </nav>
 
-          <div className="mt-6 rounded-[28px] border border-border/70 bg-background/80 p-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-secondary font-semibold text-secondary-foreground">
+          <div className="mt-6 rounded-[22px] border border-border/70 bg-background/80 p-3 shadow-[0_8px_24px_rgba(2,6,23,0.1)] lg:mt-auto">
+            <div className="flex items-center gap-3 rounded-[18px] px-1 py-1">
+              <div className="flex h-9 w-9 items-center justify-center rounded-[18px] bg-secondary font-semibold text-secondary-foreground">
                 {initials(data?.user?.name)}
               </div>
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium">{data?.user?.name ?? "CareerForge user"}</p>
-                <p className="truncate text-xs text-muted-foreground">{data?.user?.email}</p>
+                <p className="truncate text-sm font-semibold leading-5">{data?.user?.name ?? "CareerForge user"}</p>
+                <p className="truncate text-xs leading-5 text-muted-foreground">{data?.user?.email}</p>
               </div>
             </div>
-            <Button className="mt-4 w-full" variant="outline" onClick={() => signOut({ callbackUrl: "/" })}>
+            <Button className="mt-2.5 h-10 w-full rounded-[18px]" variant="outline" onClick={() => signOut({ callbackUrl: "/" })}>
               Sign out
             </Button>
           </div>
@@ -96,7 +105,6 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-
 
 
 
