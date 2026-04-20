@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { ArrowRight, BriefcaseBusiness, FileText, PanelsTopLeft, Sparkles, Stars, Target } from "lucide-react";
 
 import { AnimatedSection } from "@/components/marketing/animated-section";
@@ -10,21 +10,25 @@ const features = [
     icon: FileText,
     title: "Resume builder with live preview",
     description: "Craft modern resumes with structured sections, polished spacing, and export-ready formatting.",
+    module: "See every edit instantly · Export with confidence",
   },
   {
     icon: Sparkles,
     title: "AI bullet point improvement",
     description: "Upgrade weak bullets into sharper, more measurable outcomes with one click.",
+    module: "Turn bland bullets into proof of impact",
   },
   {
     icon: PanelsTopLeft,
     title: "Cover letters on demand",
     description: "Generate tailored letters from job descriptions and refine the tone before sending.",
+    module: "Go from job brief to tailored draft, fast",
   },
   {
     icon: BriefcaseBusiness,
     title: "Job tracking that stays usable",
     description: "Track roles, links, statuses, and notes in one calm workspace built for real search volume.",
+    module: "Keep every role moving without losing the thread",
   },
 ];
 
@@ -68,7 +72,7 @@ export default function LandingPage() {
                 ["80%", "less manual rewriting"],
                 ["1 workspace", "for every application"],
               ].map(([value, label]) => (
-                <div key={label} className="rounded-[28px] border border-border/70 bg-background/70 p-5 backdrop-blur-xl">
+                <div key={label} className="rounded-[28px] border border-border/70 bg-background/70 p-5 backdrop-blur-xl transition-transform duration-200 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(2,6,23,0.18)]">
                   <p className="text-2xl font-semibold">{value}</p>
                   <p className="mt-1 text-sm text-muted-foreground">{label}</p>
                 </div>
@@ -125,9 +129,9 @@ export default function LandingPage() {
 
       <AnimatedSection className="px-6 py-12">
         <div className="mx-auto max-w-7xl">
-          <p className="text-center text-sm uppercase tracking-[0.24em] text-muted-foreground">Trusted by candidates shipping higher-quality applications</p>
-          <div className="mt-8 grid gap-4 rounded-[32px] border border-border/70 bg-card/70 p-6 text-center text-sm font-medium text-muted-foreground backdrop-blur-xl md:grid-cols-5">
-            {['Northstar', 'Monograph', 'Payload', 'Juniper', 'Vector'].map((name) => <div key={name}>{name}</div>)}
+          <p className="text-center text-sm uppercase tracking-[0.24em] text-muted-foreground">Built around the tools that move applications forward</p>
+          <div className="mt-8 grid gap-4 rounded-[32px] border border-border/70 bg-card/70 p-6 text-center text-lg font-semibold tracking-[-0.01em] text-foreground backdrop-blur-xl md:grid-cols-4">
+            {['Live preview', 'PDF export', 'AI bullet tuning', 'Job tracking'].map((name) => <div key={name}>{name}</div>)}
           </div>
         </div>
       </AnimatedSection>
@@ -142,17 +146,17 @@ export default function LandingPage() {
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
-                <Card key={feature.title} className="group overflow-hidden">
-                  <CardHeader>
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500/15 to-emerald-500/15 text-accent transition duration-200 group-hover:-translate-y-0.5">
+                <Card key={feature.title} className="group flex h-full flex-col overflow-hidden">
+                  <CardHeader className="flex-1">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500/15 to-emerald-500/15 text-accent transition-transform duration-200 hover:-translate-y-1.5">
                       <Icon className="h-5 w-5" />
                     </div>
                     <CardTitle className="mt-6">{feature.title}</CardTitle>
                     <CardDescription>{feature.description}</CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <div className="rounded-[24px] border border-border/70 bg-muted/40 p-4 text-sm text-muted-foreground">
-                      Workflow module {(index + 1).toString().padStart(2, "0")}
+                  <CardContent className="mt-auto">
+                    <div className="rounded-[24px] border border-border/70 bg-muted/40 p-4 text-sm text-muted-foreground transition-transform duration-200 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(2,6,23,0.18)]">
+                      {feature.module}
                     </div>
                   </CardContent>
                 </Card>
@@ -177,7 +181,7 @@ export default function LandingPage() {
                 ["Thoughtful empty states", "Every page stays guided, even before your first save."],
                 ["Responsive layouts", "Built to feel intentional across desktop, tablet, and mobile."],
               ].map(([title, description]) => (
-                <div key={title} className="rounded-[28px] border border-border/70 bg-background/80 p-5">
+                <div key={title} className="rounded-[28px] border border-border/70 bg-background/80 p-5 transition-transform duration-200 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(2,6,23,0.18)]">
                   <p className="font-medium">{title}</p>
                   <p className="mt-2 text-sm text-muted-foreground">{description}</p>
                 </div>
@@ -207,8 +211,8 @@ export default function LandingPage() {
           </div>
           <div className="mt-10 grid gap-4">
             {faqs.map(([question, answer]) => (
-              <Card key={question}>
-                <CardHeader>
+              <Card key={question} className="transition-transform duration-200 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(2,6,23,0.18)]">
+                <CardHeader className="flex-1">
                   <CardTitle className="text-lg">{question}</CardTitle>
                   <CardDescription className="text-base leading-7">{answer}</CardDescription>
                 </CardHeader>
@@ -220,3 +224,20 @@ export default function LandingPage() {
     </main>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

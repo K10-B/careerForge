@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 
@@ -23,7 +23,7 @@ export function MarketingFooter() {
           </div>
         </div>
         <div className="mt-10 flex flex-col gap-3 border-t border-border/70 pt-6 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
-          <p>CareerForge AI. Crafted for ambitious operators in motion.</p>
+          <p>CareerForge AI. Crafted for ambitious operators in progress.</p>
           <div className="flex gap-4">
             <Link href="/">Home</Link>
             <Link href="/pricing">Pricing</Link>
@@ -34,3 +34,4 @@ export function MarketingFooter() {
     </footer>
   );
 }
+
