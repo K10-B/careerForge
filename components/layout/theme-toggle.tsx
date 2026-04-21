@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MoonStar, SunMedium } from "lucide-react";
+import Image from "next/image";
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
@@ -15,16 +15,38 @@ export function ThemeToggle() {
   }, []);
 
   const isDark = resolvedTheme === "dark";
+  const toggleLabel = !mounted ? "Toggle theme" : isDark ? "Switch to light mode" : "Switch to dark mode";
 
   return (
     <Button
-      variant="outline"
+      variant="ghost"
       size="icon"
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      aria-label="Toggle theme"
+      aria-label={toggleLabel}
       type="button"
+      className="relative h-12 w-12 overflow-hidden rounded-full border-0 bg-transparent shadow-none hover:bg-transparent hover:shadow-none dark:hover:bg-transparent"
     >
-      {!mounted ? <MoonStar className="h-4 w-4" /> : isDark ? <SunMedium className="h-4 w-4" /> : <MoonStar className="h-4 w-4" />}
+      <Image
+        src="/theme-sun.png"
+        alt=""
+        aria-hidden="true"
+        width={20}
+        height={20}
+        className={`absolute h-5 w-5 transition-all duration-200 ${
+          mounted && isDark ? "rotate-0 scale-100 opacity-100" : "rotate-90 scale-0 opacity-0"
+        }`}
+      />
+      <Image
+        src="/theme-moon.png"
+        alt=""
+        aria-hidden="true"
+        width={20}
+        height={20}
+        className={`absolute h-5 w-5 transition-all duration-200 ${
+          !mounted || !isDark ? "rotate-0 scale-100 opacity-100" : "-rotate-90 scale-0 opacity-0"
+        }`}
+      />
+      <span className="sr-only">{toggleLabel}</span>
     </Button>
   );
 }

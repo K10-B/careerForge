@@ -7,7 +7,6 @@ import { useSession } from "next-auth/react";
 import { ArrowLeft, BriefcaseBusiness, FileText, LayoutDashboard, PenSquare, Settings, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 
-import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { cn } from "@/lib/utils";
 
 const links = [
@@ -37,7 +36,6 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 <p className="text-xs text-muted-foreground">Premium search workspace</p>
               </div>
             </Link>
-            <ThemeToggle />
           </div>
 
           <div className="mt-5 rounded-[24px] border border-sky-500/20 bg-gradient-to-br from-sky-500/10 via-sky-500/5 to-emerald-500/10 p-4 shadow-[0_12px_32px_rgba(14,165,233,0.08)]">

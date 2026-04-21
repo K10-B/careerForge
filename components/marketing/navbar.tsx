@@ -7,9 +7,8 @@ import { Menu, Sparkles, X } from "lucide-react";
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 
-import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { DashboardProfileMenu } from "@/components/dashboard/dashboard-profile-menu";
 import { Button } from "@/components/ui/button";
-import { initials } from "@/lib/utils";
 
 const navItems = [
   { href: "#features", label: "Features" },
@@ -21,7 +20,6 @@ export function MarketingNavbar() {
   const [open, setOpen] = useState(false);
   const { data } = useSession();
   const isSignedIn = Boolean(data?.user);
-  const userInitials = initials(data?.user?.name ?? data?.user?.email ?? "CF");
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
@@ -42,22 +40,12 @@ export function MarketingNavbar() {
               <Link href={item.href}>{item.label}</Link>
             </Button>
           ))}
-          <ThemeToggle />
           {isSignedIn ? (
             <>
               <Button asChild variant="outline">
                 <Link href="/dashboard">Dashboard</Link>
               </Button>
-              <Link
-                href="/dashboard"
-                aria-label="Open dashboard"
-                className="group relative flex h-10 w-10 items-center justify-center rounded-full border-2 border-cyan-300/70 bg-gradient-to-br from-[#163a63] via-[#102742] to-[#0b1323] text-sm font-extrabold text-white shadow-[0_0_0_1px_rgba(103,232,249,0.24),0_8px_20px_rgba(2,6,23,0.24)] transition-all duration-200 hover:-translate-y-0.5 hover:border-cyan-200/90 hover:from-[#1a4777] hover:via-[#13304f] hover:to-[#0b1323] hover:shadow-[0_0_0_1px_rgba(103,232,249,0.2),0_14px_28px_rgba(2,6,23,0.32)]"
-              >
-                <span className="leading-none">{userInitials}</span>
-                <span className="absolute bottom-0 right-0 flex h-3 w-3 items-center justify-center rounded-full border-2 border-background bg-cyan-400 shadow-[0_0_0_3px_rgba(34,211,238,0.18)]">
-                  <span className="h-1 w-1 rounded-full bg-white" />
-                </span>
-              </Link>
+              <DashboardProfileMenu name={data?.user?.name} email={data?.user?.email} compact />
             </>
           ) : (
             <>
@@ -78,16 +66,8 @@ export function MarketingNavbar() {
         </div>
 
         <div className="flex items-center gap-2 md:hidden">
-          <ThemeToggle />
           {isSignedIn ? (
-            <Link
-              href="/dashboard"
-              aria-label="Open dashboard"
-              className="relative flex h-10 w-10 items-center justify-center rounded-full border-2 border-cyan-300/70 bg-gradient-to-br from-[#163a63] via-[#102742] to-[#0b1323] text-xs font-bold text-white shadow-[0_0_0_1px_rgba(103,232,249,0.2),0_10px_24px_rgba(2,6,23,0.24)] transition-all duration-200 hover:border-cyan-200/90 hover:from-[#1a4777] hover:via-[#13304f] hover:to-[#0b1323]"
-            >
-              <span className="leading-none">{userInitials}</span>
-              <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background bg-cyan-400 shadow-[0_0_0_3px_rgba(34,211,238,0.18)]" />
-            </Link>
+            <DashboardProfileMenu name={data?.user?.name} email={data?.user?.email} compact />
           ) : null}
           <Button variant="outline" size="icon" onClick={() => setOpen((value) => !value)}>
             {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
