@@ -15,6 +15,24 @@ enum ApplicationStatus {
   REJECTED
 }
 
+enum PlanTier {
+  FREE
+  PRO
+}
+
+enum BillingInterval {
+  MONTHLY
+  YEARLY
+}
+
+enum BillingStatus {
+  NONE
+  PENDING
+  ACTIVE
+  EXPIRED
+  CANCELED
+}
+
 model User {
   id              String           @id @default(cuid())
   name            String?
@@ -24,12 +42,14 @@ model User {
   password        String?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
+  planTier        PlanTier         @default(FREE)
   accounts        Account[]
   sessions        Session[]
   resumes         Resume[]
   coverLetters    CoverLetter[]
   jobApplications JobApplication[]
   usage           UserUsage?
+  billingSubscription BillingSubscription?
 }
 
 model Resume {
@@ -84,12 +104,33 @@ model UserUsage {
   id                   String   @id @default(cuid())
   resumesCreated       Int      @default(0)
   coverLettersCreated  Int      @default(0)
+  coverLetterGenerations Int    @default(0)
   bulletImprovements   Int      @default(0)
+  billingPeriodStart   DateTime @default(now())
   lastActiveAt         DateTime @default(now())
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
   userId               String   @unique
   user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model BillingSubscription {
+  id                String          @id @default(cuid())
+  provider          String          @default("XENDIT")
+  status            BillingStatus   @default(NONE)
+  billingInterval   BillingInterval?
+  amount            Int?
+  currency          String          @default("PHP")
+  xenditExternalId  String?         @unique
+  xenditInvoiceId   String?         @unique
+  xenditInvoiceUrl  String?
+  currentPeriodStart DateTime?
+  currentPeriodEnd  DateTime?
+  lastPaidAt        DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  userId            String          @unique
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Account {

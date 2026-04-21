@@ -19,14 +19,17 @@ CareerForge AI is a production-ready SaaS application for modern job seekers who
 ## Features
 
 - Premium marketing landing page with pricing
+- Xendit-backed Pro upgrade flow in test mode
 - Sign up and sign in with Auth.js
 - Protected dashboard with usage insights
+- Free vs Pro plan state surfaced across dashboard and settings
 - Resume builder with live preview and focus preview
 - Shared resume document renderer for preview and PDF export
 - Direct resume PDF download powered by Playwright from the shared export route
 - Resume cards include an in-app preview modal with dark-theme loading skeletons
 - AI resume bullet rewriting actions
 - Cover letter generator powered by Gemini
+- Free-tier usage enforcement for resumes, AI bullet improvements, and cover letter generations
 - Job application tracker with CRUD flows
 - PDF resume export with one-page fit handling, cleaner pagination, and blank-page cleanup
 - Light and dark mode support
@@ -42,6 +45,8 @@ AUTH_SECRET="replace-with-a-long-random-secret"
 GEMINI_API_KEY="your-gemini-api-key"
 GEMINI_MODEL="gemini-2.5-flash"
 NEXTAUTH_URL="http://localhost:3000"
+XENDIT_SECRET_KEY="your-xendit-test-secret-key"
+XENDIT_WEBHOOK_TOKEN="your-xendit-callback-token"
 ```
 
 ## Runtime Requirement
@@ -92,6 +97,8 @@ npm run dev
 
 6. Open `http://localhost:3000`.
 
+7. If you want to demo billing, add your Xendit test credentials and point your Xendit webhook to `/api/billing/xendit/webhook`.
+
 ## Auth Notes
 
 - Auth.js is configured with credentials authentication.
@@ -105,6 +112,18 @@ npm run dev
 - Cover letter generation calls `POST /api/ai/cover-letter`.
 - If `GEMINI_API_KEY` is missing, the app returns a safe fallback message instead of breaking.
 - You can override the default Gemini model with `GEMINI_MODEL` when needed.
+
+## Billing Notes
+
+- Pricing now supports a real Xendit-powered upgrade flow in **test mode**.
+- `POST /api/billing/xendit/checkout` creates a hosted Xendit invoice checkout for the Pro plan.
+- `POST /api/billing/xendit/webhook` activates or expires local plan state based on Xendit webhook events.
+- The billing flow is currently best suited for demo/showcase use while business verification is still pending.
+- Free tier limits are enforced in-app:
+  - `1` resume workspace
+  - `3` cover letter generations per month
+  - `5` AI bullet improvements per month
+- Pro removes those limits and updates the dashboard/settings plan state.
 
 ## Resume Builder Notes
 
@@ -130,6 +149,7 @@ npm run dev
 - `CoverLetter`
 - `JobApplication`
 - `UserUsage`
+- `BillingSubscription`
 - Auth.js support models: `Account`, `Session`, `VerificationToken`
 
 ## Deployment
@@ -137,7 +157,7 @@ npm run dev
 The app is ready for Vercel deployment.
 
 1. Create a PostgreSQL database.
-2. Add all environment variables in Vercel.
+2. Add all environment variables in Vercel, including the Xendit billing keys if you want the upgrade flow enabled.
 3. Run `npx prisma db push` against production.
 4. Deploy.
 

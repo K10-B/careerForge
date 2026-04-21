@@ -4,6 +4,7 @@ import { ApplicationStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
 import { auth } from "@/lib/auth";
+import { assertResumeCreationAllowed, ensureUsagePeriod } from "@/lib/billing";
 import { prisma } from "@/lib/prisma";
 import { coverLetterSchema, jobApplicationSchema, resumeDraftSchema } from "@/lib/validations";
 import { slugify } from "@/lib/utils";
@@ -17,15 +18,17 @@ async function getActionUserId() {
 }
 
 async function ensureUsage(userId: string) {
-  return prisma.userUsage.upsert({
-    where: { userId },
-    update: { lastActiveAt: new Date() },
-    create: { userId },
-  });
+  return ensureUsagePeriod(userId);
 }
 
 export async function saveResumeAction(input: { id?: string; values: unknown }) {
   const userId = await getActionUserId();
+  if (!input.id) {
+    const permission = await assertResumeCreationAllowed(userId);
+    if (!permission.allowed) {
+      throw new Error(permission.message);
+    }
+  }
   const values = resumeDraftSchema.parse(input.values);
   const normalizedTitle = values.title.trim() || "Untitled resume";
   const slugBase = slugify(normalizedTitle);

@@ -1,22 +1,39 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
+import { PlanCtaButton } from "@/components/billing/plan-cta-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { auth } from "@/lib/auth";
+import { getBillingSnapshotForUser, syncExpiredPlans } from "@/lib/billing";
 import { prisma } from "@/lib/prisma";
 
-export default async function SettingsPage() {
+export default async function SettingsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ billing?: string }>;
+}) {
   const session = await auth();
   const userId = session?.user?.id;
-  const [usage, resumeCount, coverLetterCount] = userId
+  await syncExpiredPlans();
+  const params = (await searchParams) ?? {};
+  const [usage, resumeCount, coverLetterCount, billing] = userId
     ? await Promise.all([
         prisma.userUsage.findUnique({ where: { userId } }),
         prisma.resume.count({ where: { userId } }),
         prisma.coverLetter.count({ where: { userId } }),
+        getBillingSnapshotForUser(userId),
       ])
-    : [null, 0, 0];
+    : [null, 0, 0, null];
+  const billingMessage =
+    params.billing === "processing"
+      ? "Checkout was created in test mode. Once Xendit confirms payment, your plan will switch to Pro automatically."
+      : params.billing === "cancelled"
+        ? "Checkout was cancelled before payment completed."
+        : params.billing === "success"
+          ? "Payment returned successfully. We're waiting for the webhook confirmation now."
+          : null;
 
   return (
     <div className="space-y-6">
@@ -32,6 +49,11 @@ export default async function SettingsPage() {
           <h1 className="mt-2 text-3xl font-semibold tracking-tight">Workspace preferences</h1>
         </div>
       </div>
+      {billingMessage ? (
+        <div className="rounded-[24px] border border-sky-400/20 bg-sky-400/10 px-4 py-3 text-sm text-sky-100">
+          {billingMessage}
+        </div>
+      ) : null}
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
@@ -42,19 +64,48 @@ export default async function SettingsPage() {
           <CardContent className="space-y-4 text-sm">
             <div><p className="text-muted-foreground">Name</p><p className="font-medium">{session?.user?.name ?? "-"}</p></div>
             <div><p className="text-muted-foreground">Email</p><p className="font-medium">{session?.user?.email ?? "-"}</p></div>
-            <div><p className="text-muted-foreground">Plan</p><Badge variant="secondary" className="mt-1">Free for now</Badge></div>
+            <div className="space-y-2">
+              <p className="text-muted-foreground">Plan</p>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="secondary" className="mt-1">
+                  {billing?.planTier === "PRO" ? "Pro" : "Free"}
+                </Badge>
+                {billing?.status === "ACTIVE" && billing.currentPeriodEnd ? (
+                  <span className="text-xs text-muted-foreground">
+                    Active until {new Date(billing.currentPeriodEnd).toLocaleDateString()}
+                  </span>
+                ) : null}
+              </div>
+            </div>
+            <div className="rounded-[20px] border border-border/70 bg-muted/40 p-4">
+              <p className="text-sm font-medium text-foreground">Billing</p>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                Xendit is wired in test mode so you can demo the real checkout flow safely before business verification is finished.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <PlanCtaButton
+                  planName="Pro"
+                  interval="MONTHLY"
+                  variant="accent"
+                />
+                <Button asChild variant="outline">
+                  <Link href="/pricing">View pricing</Link>
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
             <CardTitle>Usage snapshot</CardTitle>
-            <CardDescription>Helpful until billing and plan enforcement are introduced.</CardDescription>
+            <CardDescription>Free plan limits reset monthly. Pro removes the caps.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 text-sm">
             <div className="flex items-center justify-between"><span className="text-muted-foreground">Resumes</span><span className="font-medium">{resumeCount}</span></div>
             <div className="flex items-center justify-between"><span className="text-muted-foreground">Cover letters</span><span className="font-medium">{coverLetterCount}</span></div>
-            <div className="flex items-center justify-between"><span className="text-muted-foreground">Bullet improvements</span><span className="font-medium">{usage?.bulletImprovements ?? 0}</span></div>
+            <div className="flex items-center justify-between"><span className="text-muted-foreground">Cover letter generations</span><span className="font-medium">{usage?.coverLetterGenerations ?? 0}{billing?.limits.coverLetterGenerationsPerMonth ? ` / ${billing.limits.coverLetterGenerationsPerMonth}` : ""}</span></div>
+            <div className="flex items-center justify-between"><span className="text-muted-foreground">Bullet improvements</span><span className="font-medium">{usage?.bulletImprovements ?? 0}{billing?.limits.bulletImprovementsPerMonth ? ` / ${billing.limits.bulletImprovementsPerMonth}` : ""}</span></div>
           </CardContent>
         </Card>
       </div>

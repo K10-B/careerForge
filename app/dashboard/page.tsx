@@ -2,6 +2,7 @@
 import { ArrowRight, BrainCircuit, FilePlus2, PenSquare, X } from "lucide-react";
 
 import { deleteResumeFormAction } from "@/app/dashboard/actions";
+import { PlanCtaButton } from "@/components/billing/plan-cta-button";
 import { DashboardProfileMenu } from "@/components/dashboard/dashboard-profile-menu";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { StatsCard } from "@/components/dashboard/stats-card";
@@ -12,7 +13,7 @@ import { getDashboardData, requireUser } from "@/lib/data";
 
 export default async function DashboardPage() {
   const user = await requireUser();
-  const { resumes, applications, usage, stats } = await getDashboardData(user.id);
+  const { resumes, applications, usage, stats, billing } = await getDashboardData(user.id);
 
   return (
     <div className="space-y-6">
@@ -96,12 +97,14 @@ export default async function DashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle>Usage</CardTitle>
-              <CardDescription>Your current workspace activity.</CardDescription>
+              <CardDescription>{billing.planTier === "PRO" ? "Your Pro workspace is active." : "Your current free-tier activity and limits."}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 text-sm text-muted-foreground">
-              <div className="flex items-center justify-between"><span>Resumes</span><span className="font-medium text-foreground">{formatNumber(stats.resumes)}</span></div>
-              <div className="flex items-center justify-between"><span>Cover letters</span><span className="font-medium text-foreground">{formatNumber(stats.coverLetters)}</span></div>
-              <div className="flex items-center justify-between"><span>Bullet improvements</span><span className="font-medium text-foreground">{formatNumber(usage?.bulletImprovements ?? 0)}</span></div>
+              <div className="flex items-center justify-between"><span>Plan</span><span className="font-medium text-foreground">{billing.planTier === "PRO" ? "Pro" : "Free"}</span></div>
+              <div className="flex items-center justify-between"><span>Resumes</span><span className="font-medium text-foreground">{formatNumber(stats.resumes)}{billing.limits.resumeWorkspaces ? ` / ${billing.limits.resumeWorkspaces}` : ""}</span></div>
+              <div className="flex items-center justify-between"><span>Cover letter generations</span><span className="font-medium text-foreground">{formatNumber(usage?.coverLetterGenerations ?? 0)}{billing.limits.coverLetterGenerationsPerMonth ? ` / ${billing.limits.coverLetterGenerationsPerMonth}` : ""}</span></div>
+              <div className="flex items-center justify-between"><span>Bullet improvements</span><span className="font-medium text-foreground">{formatNumber(usage?.bulletImprovements ?? 0)}{billing.limits.bulletImprovementsPerMonth ? ` / ${billing.limits.bulletImprovementsPerMonth}` : ""}</span></div>
+              {billing.planTier !== "PRO" ? <PlanCtaButton className="mt-2 w-full" interval="MONTHLY" planName="Pro" variant="accent" /> : null}
             </CardContent>
           </Card>
         </div>

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { ArrowLeft, BriefcaseBusiness, FileText, LayoutDashboard, PenSquare, Settings, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -19,6 +20,8 @@ const links = [
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const planTier = session?.user?.planTier ?? "FREE";
 
   return (
     <div className="min-h-screen bg-background">
@@ -40,10 +43,16 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           <div className="mt-5 rounded-[24px] border border-sky-500/20 bg-gradient-to-br from-sky-500/10 via-sky-500/5 to-emerald-500/10 p-4 shadow-[0_12px_32px_rgba(14,165,233,0.08)]">
             <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-300/90">
               <Sparkles className="h-3.5 w-3.5" />
-              Free tier
+              {planTier === "PRO" ? "Pro tier" : "Free tier"}
             </div>
-            <p className="mt-2 text-sm font-medium text-foreground">Your workspace is active on the free plan.</p>
-            <p className="mt-1 text-xs leading-5 text-muted-foreground">Keep building resumes, cover letters, and tracked roles in one calm flow.</p>
+            <p className="mt-2 text-sm font-medium text-foreground">
+              {planTier === "PRO" ? "Your workspace is active on Pro." : "Your workspace is active on the free plan."}
+            </p>
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">
+              {planTier === "PRO"
+                ? "Unlimited AI support and deeper search momentum are unlocked in this workspace."
+                : "Keep building resumes, cover letters, and tracked roles in one calm flow."}
+            </p>
           </div>
 
           <nav className="mt-5 grid flex-1 gap-2 content-start">

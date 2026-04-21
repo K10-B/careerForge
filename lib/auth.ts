@@ -1,20 +1,23 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
+import type { PlanTier } from "@prisma/client";
 import { compare } from "bcryptjs";
 import type { DefaultSession, NextAuthOptions } from "next-auth";
 import { getServerSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
+import { getBillingSnapshotForUser } from "@/lib/billing";
 import { prisma } from "@/lib/prisma";
 
 declare module "next-auth" {
   interface Session {
-    user: DefaultSession["user"] & { id: string };
+    user: DefaultSession["user"] & { id: string; planTier: PlanTier };
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
     id?: string;
+    planTier?: PlanTier;
   }
 }
 
@@ -56,6 +59,7 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           email: user.email,
           image: user.image,
+          planTier: user.planTier,
         };
       },
     }),
@@ -64,12 +68,19 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.planTier = (user as { planTier?: PlanTier }).planTier;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user && token.id) {
         session.user.id = token.id as string;
+        try {
+          const billing = await getBillingSnapshotForUser(token.id as string);
+          session.user.planTier = billing.planTier;
+        } catch {
+          session.user.planTier = token.planTier ?? "FREE";
+        }
       }
       return session;
     },

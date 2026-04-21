@@ -65,3 +65,15 @@ export type DashboardStats = {
   activeApplications: number;
   interviews: number;
 };
+
+export type DashboardBilling = {
+  planTier: "FREE" | "PRO";
+  status: "NONE" | "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELED";
+  billingInterval: "MONTHLY" | "YEARLY" | null;
+  currentPeriodEnd: Date | null;
+  limits: {
+    resumeWorkspaces: number | null;
+    coverLetterGenerationsPerMonth: number | null;
+    bulletImprovementsPerMonth: number | null;
+  };
+};

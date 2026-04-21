@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
 
 import { auth } from "@/lib/auth";
+import { getBillingSnapshotForUser, syncExpiredPlans } from "@/lib/billing";
 import { prisma } from "@/lib/prisma";
-import type { DashboardStats, ResumeFormValues, ResumeProjectItem } from "@/types";
+import type { DashboardBilling, DashboardStats, ResumeFormValues, ResumeProjectItem } from "@/types";
 
 export async function requireUser() {
   const session = await auth();
@@ -15,7 +16,8 @@ export async function requireUser() {
 }
 
 export async function getDashboardData(userId: string) {
-  const [resumes, coverLetters, applications, usage, resumeCount, coverLetterCount, activeApplicationsCount, interviewsCount] = await Promise.all([
+  await syncExpiredPlans();
+  const [resumes, coverLetters, applications, usage, resumeCount, coverLetterCount, activeApplicationsCount, interviewsCount, billing] = await Promise.all([
     prisma.resume.findMany({
       where: { userId },
       orderBy: { updatedAt: "desc" },
@@ -36,6 +38,7 @@ export async function getDashboardData(userId: string) {
     prisma.coverLetter.count({ where: { userId } }),
     prisma.jobApplication.count({ where: { userId, status: { not: "REJECTED" } } }),
     prisma.jobApplication.count({ where: { userId, status: "INTERVIEW" } }),
+    getBillingSnapshotForUser(userId),
   ]);
 
   const stats: DashboardStats = {
@@ -45,7 +48,7 @@ export async function getDashboardData(userId: string) {
     interviews: interviewsCount,
   };
 
-  return { resumes, coverLetters, applications, usage, stats };
+  return { resumes, coverLetters, applications, usage, stats, billing: billing as DashboardBilling };
 }
 
 export async function getResumeById(userId: string, id: string) {

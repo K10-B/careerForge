@@ -19,6 +19,7 @@ export const pricingPlans = [
     monthly: 0,
     yearly: 0,
     description: "Get started with structured job search essentials.",
+    cta: "Start Free",
     features: [
       "1 resume workspace",
       "5 AI bullet improvements / month",
@@ -31,6 +32,7 @@ export const pricingPlans = [
     monthly: 19,
     yearly: 15,
     description: "For ambitious candidates running a serious search.",
+    cta: "Upgrade to Pro",
     features: [
       "Unlimited resumes",
       "Unlimited AI bullet improvements",
@@ -43,11 +45,17 @@ export const pricingPlans = [
 
 export const featureComparison = [
   ["Resume builder", "1 resume", "Unlimited"],
-  ["Cover letters", "3 / month", "Unlimited"],
+  ["Cover letters", "3 generations / month", "Unlimited"],
   ["AI bullet rewriting", "5 / month", "Unlimited"],
   ["Job tracker", "Basic", "Advanced"],
   ["PDF export", "Yes", "Yes"],
 ];
+
+export const freePlanLimits = {
+  resumeWorkspaces: 1,
+  coverLetterGenerationsPerMonth: 3,
+  bulletImprovementsPerMonth: 5,
+} as const;
 
 export const defaultResume: ResumeFormValues = {
   title: "",

@@ -1,11 +1,9 @@
 "use client";
-
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { useState } from "react";
 
+import { PlanCtaButton } from "@/components/billing/plan-cta-button";
 import { featureComparison, pricingPlans } from "@/lib/constants";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function PricingPage() {
@@ -40,9 +38,12 @@ export default function PricingPage() {
                   <div className="mt-6 space-y-3 text-sm text-muted-foreground">
                     {plan.features.map((feature) => <p key={feature}>{feature}</p>)}
                   </div>
-                  <Button asChild className="mt-8 w-full" variant={plan.name === "Pro" ? "accent" : "outline"}>
-                    <Link href="/signup">{plan.name === "Pro" ? "Start Pro" : "Start Free"}</Link>
-                  </Button>
+                  <PlanCtaButton
+                    className="mt-8 w-full"
+                    interval={yearly ? "YEARLY" : "MONTHLY"}
+                    planName={plan.name as "Free" | "Pro"}
+                    variant={plan.name === "Pro" ? "accent" : "outline"}
+                  />
                 </CardContent>
               </Card>
             </motion.div>
