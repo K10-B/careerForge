@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
-import { ManagePlanDialogButton } from "@/components/billing/manage-plan-dialog-button";
-import { PlanCtaButton } from "@/components/billing/plan-cta-button";
-import { TestModePaidButton } from "@/components/billing/test-mode-paid-button";
+import { BillingStatusWatcher } from "@/components/billing/billing-status-watcher";
+import { SettingsBillingActions } from "@/components/billing/settings-billing-actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,16 +28,16 @@ export default async function SettingsPage({
       ])
     : [null, 0, 0, null];
   const billingMessage =
-    params.billing === "processing"
+    params.billing === "processing" && billing?.status === "PENDING"
       ? "Checkout was created in test mode. Once Xendit confirms payment, your plan will switch to Pro automatically."
       : params.billing === "cancelled"
         ? "Checkout was cancelled before payment completed."
-        : params.billing === "success"
+        : params.billing === "success" && billing?.status !== "ACTIVE"
           ? "Payment returned successfully. We're waiting for the webhook confirmation now."
           : null;
-
   return (
     <div className="space-y-6">
+      <BillingStatusWatcher enabled={params.billing === "processing" && billing?.status === "PENDING"} />
       <div className="space-y-4">
         <Button asChild variant="ghost" className="h-9 w-fit rounded-full border border-white/8 bg-white/[0.03] px-3 text-slate-200 hover:bg-white/[0.06] hover:text-white">
           <Link href="/dashboard">
@@ -84,35 +83,13 @@ export default async function SettingsPage({
               <p className="mt-1 text-xs leading-5 text-muted-foreground">
                 Xendit is wired in test mode so you can demo the real checkout flow safely before business verification is finished.
               </p>
-              <div className="mt-4 flex flex-wrap gap-3">
-                {billing?.planTier === "PRO" ? (
-                  <ManagePlanDialogButton
-                    planTier={billing.planTier}
-                    status={billing.status}
-                    billingInterval={billing.billingInterval}
-                    currentPeriodEnd={billing.currentPeriodEnd ? billing.currentPeriodEnd.toISOString() : null}
-                  />
-                ) : (
-                  <PlanCtaButton
-                    planName="Pro"
-                    interval="MONTHLY"
-                    variant="accent"
-                  />
-                )}
-                <Button asChild variant="outline">
-                  <Link href="/pricing">View pricing</Link>
-                </Button>
-              </div>
-              {billing?.status === "PENDING" ? (
-                <div className="mt-4 rounded-[18px] border border-emerald-400/15 bg-emerald-400/5 p-3">
-                  <p className="text-xs font-medium uppercase tracking-[0.14em] text-emerald-300/90">Test mode shortcut</p>
-                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                    For demos on localhost, you can confirm the pending checkout here without waiting for a live webhook callback.
-                  </p>
-                  <div className="mt-3">
-                    <TestModePaidButton />
-                  </div>
-                </div>
+              {billing ? (
+                <SettingsBillingActions
+                  planTier={billing.planTier}
+                  status={billing.status}
+                  billingInterval={billing.billingInterval}
+                  currentPeriodEnd={billing.currentPeriodEnd ? billing.currentPeriodEnd.toISOString() : null}
+                />
               ) : null}
             </div>
           </CardContent>

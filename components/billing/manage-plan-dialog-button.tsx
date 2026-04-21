@@ -12,6 +12,7 @@ type ManagePlanDialogButtonProps = {
   status: "NONE" | "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELED";
   billingInterval: "MONTHLY" | "YEARLY" | null;
   currentPeriodEnd: string | null;
+  onPlanCanceled?: () => void;
 };
 
 export function ManagePlanDialogButton({
@@ -19,6 +20,7 @@ export function ManagePlanDialogButton({
   status,
   billingInterval,
   currentPeriodEnd,
+  onPlanCanceled,
 }: ManagePlanDialogButtonProps) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -106,7 +108,12 @@ export function ManagePlanDialogButton({
                         Canceling here is intended for demo/test mode and immediately returns the workspace to the Free tier.
                       </p>
                       <div className="mt-4">
-                        <CancelPlanButton />
+                        <CancelPlanButton
+                          onCanceled={() => {
+                            setOpen(false);
+                            onPlanCanceled?.();
+                          }}
+                        />
                       </div>
                     </div>
                   ) : null}

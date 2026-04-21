@@ -8,9 +8,11 @@ const XENDIT_API_BASE = "https://api.xendit.co";
 type BillingUserShape = {
   planTier: PlanTier;
   billingSubscription: {
+    id?: string;
     status: BillingStatus;
     billingInterval: BillingInterval | null;
     currentPeriodEnd: Date | null;
+    xenditInvoiceId?: string | null;
   } | null;
 };
 
@@ -116,9 +118,11 @@ export async function getBillingSnapshotForUser(userId: string) {
       planTier: true,
       billingSubscription: {
         select: {
+          id: true,
           status: true,
           billingInterval: true,
           currentPeriodEnd: true,
+          xenditInvoiceId: true,
         },
       },
     },
@@ -126,6 +130,44 @@ export async function getBillingSnapshotForUser(userId: string) {
 
   if (!user) {
     throw new Error("User not found.");
+  }
+
+  if (
+    user.billingSubscription?.status === BillingStatus.PENDING &&
+    user.billingSubscription.id &&
+    user.billingSubscription.xenditInvoiceId
+  ) {
+    try {
+      const invoice = await getXenditInvoice(user.billingSubscription.xenditInvoiceId);
+
+      if (invoice.status === "PAID") {
+        await markSubscriptionPaid(
+          user.billingSubscription.id,
+          invoice.id,
+          invoice.paid_at ? new Date(invoice.paid_at) : new Date(),
+        );
+
+        const refreshedUser = await prisma.user.findUnique({
+          where: { id: userId },
+          select: {
+            planTier: true,
+            billingSubscription: {
+              select: {
+                status: true,
+                billingInterval: true,
+                currentPeriodEnd: true,
+              },
+            },
+          },
+        });
+
+        if (refreshedUser) {
+          return resolveEffectivePlan(refreshedUser);
+        }
+      }
+    } catch {
+      // Keep the current pending state if Xendit cannot be checked.
+    }
   }
 
   return resolveEffectivePlan(user);
@@ -245,6 +287,29 @@ export async function createXenditInvoice(input: CreateInvoiceInput) {
     external_id: string;
     invoice_url: string;
     status: string;
+  };
+}
+
+async function getXenditInvoice(invoiceId: string) {
+  const response = await fetch(`${XENDIT_API_BASE}/v2/invoices/${invoiceId}`, {
+    method: "GET",
+    headers: {
+      Authorization: getXenditAuthHeader(),
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data?.message ?? data?.error_code ?? "Unable to read Xendit invoice.");
+  }
+
+  return data as {
+    id: string;
+    status: string;
+    paid_at?: string | null;
   };
 }
 

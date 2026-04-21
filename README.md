@@ -20,6 +20,7 @@ CareerForge AI is a production-ready SaaS application for modern job seekers who
 
 - Premium marketing landing page with pricing
 - Xendit-backed Pro upgrade flow in test mode
+- Automatic Pro plan sync after paid Xendit checkout returns to Settings
 - Sign up and sign in with Auth.js
 - Protected dashboard with usage insights
 - Free vs Pro plan state surfaced across dashboard and settings
@@ -33,6 +34,7 @@ CareerForge AI is a production-ready SaaS application for modern job seekers who
 - Job application tracker with CRUD flows
 - PDF resume export with one-page fit handling, cleaner pagination, and blank-page cleanup
 - Light and dark mode support
+- Unified `CJ` account menu across dashboard and landing page, including theme switching
 - Responsive layouts, polished empty states, and loading states
 
 ## Environment Variables
@@ -118,7 +120,13 @@ npm run dev
 - Pricing now supports a real Xendit-powered upgrade flow in **test mode**.
 - `POST /api/billing/xendit/checkout` creates a hosted Xendit invoice checkout for the Pro plan.
 - `POST /api/billing/xendit/webhook` activates or expires local plan state based on Xendit webhook events.
+- `GET /api/billing/status` lets the settings screen poll billing state after checkout returns.
 - The billing flow is currently best suited for demo/showcase use while business verification is still pending.
+- If a paid Xendit invoice already exists, the Settings page can auto-promote the workspace to Pro without a manual reload.
+- Settings includes:
+  - `Manage plan` modal for active Pro workspaces
+  - in-app cancel confirmation instead of native browser alerts
+  - immediate fallback to `Upgrade to Pro` after canceling
 - Free tier limits are enforced in-app:
   - `1` resume workspace
   - `3` cover letter generations per month
@@ -140,7 +148,9 @@ npm run dev
 ## UI Notes
 
 - Save and export buttons in the resume editor use separate loading states.
+- Theme switching now lives inside the shared `CJ` account menu and uses custom light/dark icon assets.
 - The theme toggle waits for client mount before swapping icons to avoid hydration mismatches.
+- The landing page and dashboard now share the same floating `CJ` profile menu behavior.
 
 ## Database Models
 

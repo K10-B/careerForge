@@ -12,6 +12,7 @@ type PlanCtaButtonProps = {
   interval?: "MONTHLY" | "YEARLY";
   className?: string;
   variant?: "accent" | "outline" | "ghost" | "default";
+  overridePlanTier?: "FREE" | "PRO";
 };
 
 export function PlanCtaButton({
@@ -19,10 +20,11 @@ export function PlanCtaButton({
   interval = "MONTHLY",
   className,
   variant = "outline",
+  overridePlanTier,
 }: PlanCtaButtonProps) {
   const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState(false);
-  const planTier = session?.user?.planTier ?? "FREE";
+  const planTier = overridePlanTier ?? session?.user?.planTier ?? "FREE";
 
   if (planName === "Free") {
     return (
