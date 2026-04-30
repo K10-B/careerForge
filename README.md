@@ -51,6 +51,13 @@ XENDIT_SECRET_KEY="your-xendit-test-secret-key"
 XENDIT_WEBHOOK_TOKEN="your-xendit-callback-token"
 ```
 
+Xendit setup notes:
+
+- `XENDIT_SECRET_KEY` must be your Xendit **secret** API key for the server-side invoice checkout flow.
+- Do not use a public key such as `xnd_public_development_...` here.
+- For test mode, the key will usually look like `xnd_development_...`.
+- `XENDIT_WEBHOOK_TOKEN` should match the callback token configured for your Xendit webhook endpoint.
+
 ## Runtime Requirement
 
 - Use Node.js `22` locally when possible.
@@ -99,7 +106,7 @@ npm run dev
 
 6. Open `http://localhost:3000`.
 
-7. If you want to demo billing, add your Xendit test credentials and point your Xendit webhook to `/api/billing/xendit/webhook`.
+7. If you want to demo billing, add your Xendit test credentials, use a secret development key for `XENDIT_SECRET_KEY`, and point your Xendit webhook to `/api/billing/xendit/webhook`.
 
 ## Auth Notes
 
@@ -121,6 +128,7 @@ npm run dev
 - `POST /api/billing/xendit/checkout` creates a hosted Xendit invoice checkout for the Pro plan.
 - `POST /api/billing/xendit/webhook` activates or expires local plan state based on Xendit webhook events.
 - `GET /api/billing/status` lets the settings screen poll billing state after checkout returns.
+- The checkout route authenticates with Xendit using your secret API key on the server. A public key will fail here.
 - The billing flow is currently best suited for demo/showcase use while business verification is still pending.
 - If a paid Xendit invoice already exists, the Settings page can auto-promote the workspace to Pro without a manual reload.
 - Settings includes:
