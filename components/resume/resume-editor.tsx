@@ -34,7 +34,7 @@ const tertiaryButtonClass =
 const subtleActionClass =
   "h-8 shrink-0 rounded-full px-3 text-xs text-slate-400 hover:bg-white/[0.05] hover:text-slate-100";
 const aiActionClass =
-  "h-7 shrink-0 rounded-full border border-white/6 bg-white/[0.02] px-2 text-[10px] font-medium text-slate-300 hover:bg-white/[0.05] hover:text-white";
+  "h-7 shrink-0 whitespace-nowrap rounded-full border border-white/6 bg-white/[0.02] px-2 text-[10px] font-medium text-slate-300 hover:bg-white/[0.05] hover:text-white";
 const skillChipClass =
   "inline-flex max-w-full items-center gap-1.5 rounded-full border border-white/6 bg-white/[0.03] px-2.5 py-1 text-xs text-slate-300";
 const dateFieldClass = cn(fieldClass, "min-w-[140px]");
@@ -59,13 +59,13 @@ function EditorSection({ eyebrow, title, description, actions, children, classNa
 
   return (
     <section className={cn("space-y-5 border-t border-white/6 pt-8 first:border-t-0 first:pt-0", className)}>
-      <div className="flex min-w-0 flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+      <div className="flex min-w-0 flex-col gap-4 2xl:flex-row 2xl:items-start 2xl:justify-between">
         <div className="min-w-0 flex-1">
           {eyebrow ? <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-sky-300/85">{eyebrow}</p> : null}
           <h2 className="mt-1 text-lg font-semibold tracking-tight text-white">{title}</h2>
           {description ? <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-400">{description}</p> : null}
         </div>
-        {actions ? <div className="flex min-w-0 flex-wrap items-center gap-2 lg:justify-end">{actions}</div> : null}
+        {actions ? <div className="flex min-w-0 flex-wrap items-center gap-2 2xl:justify-end">{actions}</div> : null}
       </div>
       {children}
     </section>
@@ -134,10 +134,10 @@ function ExperienceRole({
           const key = `${item.id}-${bulletIndex}`;
           return (
             <div key={key} className="space-y-3 rounded-2xl bg-slate-950/18 px-3.5 py-3 ring-1 ring-white/4">
-              <div className="flex min-w-0 flex-col gap-2 xl:flex-row xl:items-center xl:justify-between">
-                <p className="shrink-0 text-xs font-medium text-slate-400">Bullet {bulletIndex + 1}</p>
-                <div className="min-w-0 xl:flex-1">
-                  <div className="flex flex-wrap items-center gap-1.5 xl:flex-nowrap xl:justify-end">
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-slate-400">Bullet {bulletIndex + 1}</p>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
                     {bulletActions.map((action) => (
                       <Button
                         key={action.value}
@@ -294,19 +294,19 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
 
   return (
     <>
-      <div className="grid gap-6 2xl:grid-cols-[minmax(0,0.9fr)_minmax(520px,1.1fr)] xl:grid-cols-[minmax(0,1fr)_minmax(440px,0.98fr)]">
+      <div className="grid gap-6 2xl:grid-cols-[minmax(0,0.95fr)_minmax(500px,1.05fr)]">
         <div className="min-w-0 space-y-6">
           <section className="rounded-[28px] border border-white/7 bg-slate-950/55 px-6 py-6 shadow-[0_20px_70px_rgba(2,6,23,0.26)] backdrop-blur-xl">
-            <div className="flex min-w-0 flex-col gap-5 2xl:flex-row 2xl:items-start 2xl:justify-between">
-              <div className="min-w-0 flex-1 max-w-3xl">
+            <div className="space-y-5">
+              <div className="min-w-0 max-w-3xl">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-300/85">Resume Builder</p>
                 <h1 className="mt-2 text-[1.9rem] font-semibold tracking-tight text-white">Build a cleaner, sharper narrative.</h1>
                 <p className="mt-2 text-sm leading-6 text-slate-400">
                   Edit the substance here, keep the structure light, and export a recruiter-ready document without dragging the app UI into the final output.
                 </p>
               </div>
-              <div className="flex min-w-0 flex-col gap-3 2xl:max-w-[320px] 2xl:items-end">
-                <div className="flex flex-wrap items-center gap-2 2xl:justify-end">
+              <div className="flex min-w-0 flex-col gap-3">
+                <div className="flex flex-wrap items-center gap-2">
                   <Button
                     type="button"
                     variant="outline"
@@ -358,7 +358,7 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
                     Save resume
                   </Button>
                 </div>
-                <p className="max-w-sm text-xs text-slate-500 2xl:text-right">Save keeps your latest edits synced. Export generates the recruiter-ready PDF.</p>
+                <p className="max-w-md text-xs text-slate-500">Save keeps your latest edits synced. Export generates the recruiter-ready PDF.</p>
               </div>
             </div>
             {message ? <p className="mt-4 text-sm text-slate-400">{message}</p> : null}
@@ -525,10 +525,10 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
                                 <div className="space-y-3.5">
                                   {safeBullets.map((bullet, bulletIndex) => (
                                     <div key={`${project.id}-bullet-${bulletIndex}`} className="space-y-3 rounded-2xl bg-slate-950/18 px-3.5 py-3.5 ring-1 ring-white/4">
-                                      <div className="flex min-w-0 flex-col gap-2 xl:flex-row xl:items-center xl:justify-between">
-                                        <p className="shrink-0 text-xs font-medium text-slate-400">Bullet {bulletIndex + 1}</p>
-                                        <div className="min-w-0 xl:flex-1">
-                                          <div className="flex flex-wrap items-center gap-1.5 xl:flex-nowrap xl:justify-end">
+                                      <div className="space-y-2">
+                                        <p className="text-xs font-medium text-slate-400">Bullet {bulletIndex + 1}</p>
+                                        <div className="min-w-0">
+                                          <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
                                             {bulletActions.map((action) => (
                                               <Button
                                                 key={action.value}
@@ -637,7 +637,7 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
                 )}
               </EditorSection>
 
-              <div className="grid gap-6 2xl:grid-cols-[minmax(0,0.98fr)_minmax(0,1.02fr)]">
+              <div className="space-y-8">
                 <EditorSection
                   eyebrow="Credentials"
                   title="Education"
@@ -826,7 +826,7 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
           </div>
         </div>
 
-        <div className="min-w-0 space-y-4 xl:sticky xl:top-4 xl:self-start">
+        <div className="min-w-0 space-y-4 2xl:sticky 2xl:top-4 2xl:self-start">
           <Card className="overflow-hidden border-white/7 bg-slate-950/45 shadow-[0_18px_60px_rgba(2,6,23,0.24)]">
             <CardHeader className="border-b border-white/6 pb-4">
               <div className="flex items-start justify-between gap-4">

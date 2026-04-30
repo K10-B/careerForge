@@ -25,12 +25,12 @@ export default function PricingPage() {
         <div className="mt-12 grid gap-6 lg:grid-cols-2">
           {pricingPlans.map((plan, index) => (
             <motion.div key={plan.name} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.08, duration: 0.35 }}>
-              <Card className={`h-full ${plan.name === "Pro" ? "border-accent shadow-glow" : ""}`}>
+              <Card className={`flex h-full flex-col ${plan.name === "Pro" ? "border-accent shadow-glow" : ""}`}>
                 <CardHeader>
                   <CardTitle className="text-2xl">{plan.name}</CardTitle>
                   <CardDescription>{plan.description}</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex flex-1 flex-col">
                   <div className="flex items-end gap-2">
                     <p className="text-5xl font-semibold">${yearly ? plan.yearly : plan.monthly}</p>
                     <p className="pb-2 text-sm text-muted-foreground">/ month</p>
@@ -38,12 +38,14 @@ export default function PricingPage() {
                   <div className="mt-6 space-y-3 text-sm text-muted-foreground">
                     {plan.features.map((feature) => <p key={feature}>{feature}</p>)}
                   </div>
-                  <PlanCtaButton
-                    className="mt-8 w-full"
-                    interval={yearly ? "YEARLY" : "MONTHLY"}
-                    planName={plan.name as "Free" | "Pro"}
-                    variant={plan.name === "Pro" ? "accent" : "outline"}
-                  />
+                  <div className="mt-auto pt-8">
+                    <PlanCtaButton
+                      className="w-full"
+                      interval={yearly ? "YEARLY" : "MONTHLY"}
+                      planName={plan.name as "Free" | "Pro"}
+                      variant={plan.name === "Pro" ? "accent" : "outline"}
+                    />
+                  </div>
                 </CardContent>
               </Card>
             </motion.div>
