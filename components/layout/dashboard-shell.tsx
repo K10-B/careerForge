@@ -24,7 +24,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-4 lg:flex-row lg:px-6 lg:py-6">
+      <div className="mx-auto flex max-w-[1500px] flex-col gap-6 px-3 py-4 sm:px-4 lg:flex-row lg:px-6 lg:py-6">
         <aside className="glass flex flex-col rounded-[32px] p-4 lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)] lg:w-72 lg:p-5">
           <div className="flex items-center justify-between gap-3 border-b border-border/70 pb-4">
             <Link href="/dashboard" className="flex items-center gap-3">
@@ -56,7 +56,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           <nav className="mt-5 grid flex-1 gap-2 content-start">
             {links.map((link, index) => {
               const Icon = link.icon;
-              const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
+              const active = link.href === "/dashboard"
+                ? pathname === link.href
+                : pathname === link.href || pathname.startsWith(`${link.href}/`);
 
               return (
                 <motion.div
@@ -70,7 +72,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                     className={cn(
                       "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm transition-all duration-200",
                       active
-                        ? "bg-primary text-primary-foreground shadow-lg shadow-slate-950/10"
+                        ? "bg-sky-500 text-white shadow-lg shadow-sky-500/20 dark:bg-primary dark:text-primary-foreground dark:shadow-sky-500/10"
                         : "text-muted-foreground hover:bg-muted hover:text-foreground",
                     )}
                   >

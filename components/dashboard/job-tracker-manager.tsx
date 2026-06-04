@@ -48,11 +48,11 @@ type AppliedDatePickerProps = {
 };
 
 const statusTone: Record<ApplicationItem["status"], string> = {
-  WISHLIST: "border-slate-300/25 bg-slate-500/5 text-slate-100",
-  APPLIED: "border-sky-300/25 bg-sky-500/5 text-sky-100",
-  INTERVIEW: "border-amber-300/25 bg-amber-500/5 text-amber-100",
-  OFFER: "border-emerald-300/25 bg-emerald-500/5 text-emerald-100",
-  REJECTED: "border-rose-300/25 bg-rose-500/5 text-rose-100",
+  WISHLIST: "border-sky-200 bg-sky-50 text-sky-900 dark:border-slate-300/25 dark:bg-slate-500/5 dark:text-slate-100",
+  APPLIED: "border-blue-200 bg-blue-50 text-blue-900 dark:border-sky-300/25 dark:bg-sky-500/5 dark:text-sky-100",
+  INTERVIEW: "border-cyan-200 bg-cyan-50 text-cyan-900 dark:border-amber-300/25 dark:bg-amber-500/5 dark:text-amber-100",
+  OFFER: "border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-300/25 dark:bg-emerald-500/5 dark:text-emerald-100",
+  REJECTED: "border-rose-200 bg-rose-50 text-rose-900 dark:border-rose-300/25 dark:bg-rose-500/5 dark:text-rose-100",
 };
 
 const previewClampStyle = {
@@ -175,18 +175,18 @@ function AppliedDatePicker({ value, onChange }: AppliedDatePickerProps) {
       </button>
 
       {open ? (
-        <div className="absolute left-0 right-0 top-[calc(100%+10px)] z-30 overflow-hidden rounded-2xl border border-white/8 bg-slate-950/96 p-3.5 shadow-[0_18px_40px_rgba(2,6,23,0.42)] backdrop-blur-xl">
+        <div className="absolute left-0 right-0 top-[calc(100%+10px)] z-30 overflow-hidden rounded-2xl border border-sky-100 bg-white/95 p-3.5 shadow-[0_18px_40px_rgba(14,165,233,0.16)] backdrop-blur-xl dark:border-white/8 dark:bg-slate-950/96 dark:shadow-[0_18px_40px_rgba(2,6,23,0.42)]">
           <div className="mb-3 flex items-center justify-between">
             <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => setMonth((current) => subMonths(current, 1))}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <p className="text-[13px] font-semibold text-slate-100">{format(month, "MMMM yyyy")}</p>
+            <p className="text-[13px] font-semibold text-slate-900 dark:text-slate-100">{format(month, "MMMM yyyy")}</p>
             <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => setMonth((current) => addMonths(current, 1))}>
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
 
-          <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-medium uppercase tracking-[0.1em] text-slate-500">
+          <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-medium uppercase tracking-[0.1em] text-slate-500 dark:text-slate-500">
             {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((day) => (
               <div key={day} className="py-0.5">{day}</div>
             ))}
@@ -202,11 +202,11 @@ function AppliedDatePicker({ value, onChange }: AppliedDatePickerProps) {
                   type="button"
                   className={`flex h-8 items-center justify-center rounded-lg text-sm transition ${
                     selected
-                      ? "bg-sky-400/20 text-sky-100 ring-1 ring-sky-400/30"
+                      ? "bg-sky-500 text-white ring-1 ring-sky-300 dark:bg-sky-400/20 dark:text-sky-100 dark:ring-sky-400/30"
                       : inMonth
-                        ? "text-slate-200 hover:bg-white/[0.06]"
-                        : "text-slate-600 hover:bg-white/[0.03]"
-                  } ${isToday(day) && !selected ? "border border-white/10" : "border border-transparent"}`}
+                        ? "text-slate-700 hover:bg-sky-50 dark:text-slate-200 dark:hover:bg-white/[0.06]"
+                        : "text-slate-300 hover:bg-sky-50/70 dark:text-slate-600 dark:hover:bg-white/[0.03]"
+                  } ${isToday(day) && !selected ? "border border-sky-200 dark:border-white/10" : "border border-transparent"}`}
                   onClick={() => {
                     onChange(format(day, "yyyy-MM-dd"));
                     setOpen(false);
@@ -218,7 +218,7 @@ function AppliedDatePicker({ value, onChange }: AppliedDatePickerProps) {
             })}
           </div>
 
-          <div className="mt-3 flex items-center justify-between border-t border-white/6 pt-2.5">
+          <div className="mt-3 flex items-center justify-between border-t border-sky-100 pt-2.5 dark:border-white/6">
             <Button type="button" variant="ghost" size="sm" className="h-8 px-2.5 text-xs" onClick={() => onChange("")}>Clear</Button>
             <Button
               type="button"
@@ -373,7 +373,7 @@ export function JobTrackerManager({ initialApplications }: { initialApplications
                 </button>
 
                 {statusOpen ? (
-                  <div className="absolute left-0 right-0 top-[calc(100%+10px)] z-20 overflow-hidden rounded-2xl border border-white/8 bg-slate-950/96 p-2 shadow-[0_20px_50px_rgba(2,6,23,0.45)] backdrop-blur-xl">
+                  <div className="absolute left-0 right-0 top-[calc(100%+10px)] z-20 overflow-hidden rounded-2xl border border-sky-100 bg-white/95 p-2 shadow-[0_20px_50px_rgba(14,165,233,0.16)] backdrop-blur-xl dark:border-white/8 dark:bg-slate-950/96 dark:shadow-[0_20px_50px_rgba(2,6,23,0.45)]">
                     <div role="listbox" aria-label="Application status options" className="space-y-1">
                       {applicationStatuses.map((status) => {
                         const selected = status === form.status;
@@ -383,14 +383,14 @@ export function JobTrackerManager({ initialApplications }: { initialApplications
                             type="button"
                             role="option"
                             aria-selected={selected}
-                            className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm transition ${selected ? "bg-sky-400/12 text-white" : "text-slate-300 hover:bg-white/[0.05] hover:text-white"}`}
+                            className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm transition ${selected ? "bg-sky-100 text-sky-900 dark:bg-sky-400/12 dark:text-white" : "text-slate-700 hover:bg-sky-50 hover:text-sky-900 dark:text-slate-300 dark:hover:bg-white/[0.05] dark:hover:text-white"}`}
                             onClick={() => {
                               setForm({ ...form, status });
                               setStatusOpen(false);
                             }}
                           >
                             <span>{status}</span>
-                            {selected ? <Check className="h-4 w-4 text-sky-300" /> : null}
+                            {selected ? <Check className="h-4 w-4 text-sky-600 dark:text-sky-300" /> : null}
                           </button>
                         );
                       })}
@@ -429,9 +429,9 @@ export function JobTrackerManager({ initialApplications }: { initialApplications
         </Card>
 
         <div className="space-y-4">
-          <div className="space-y-1 rounded-2xl border border-white/6 bg-[linear-gradient(180deg,rgba(15,23,42,0.42),rgba(15,23,42,0.18))] px-4 py-3">
-            <p className="text-sm font-semibold text-slate-200">Application pipeline</p>
-            <p className="text-xs leading-5 text-slate-400">Choose a status card to open the applications in that stage.</p>
+          <div className="space-y-1 rounded-2xl border border-sky-100 bg-sky-50/80 px-4 py-3 shadow-sm shadow-sky-500/10 dark:border-white/6 dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.42),rgba(15,23,42,0.18))] dark:shadow-none">
+            <p className="text-sm font-semibold text-slate-900 dark:text-slate-200">Application pipeline</p>
+            <p className="text-xs leading-5 text-sky-700 dark:text-slate-400">Choose a status card to open the applications in that stage.</p>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -448,15 +448,15 @@ export function JobTrackerManager({ initialApplications }: { initialApplications
                   <Card
                     className={`relative overflow-hidden rounded-[24px] transition-all duration-200 ease-out ${
                       active
-                        ? "border-sky-400/25 bg-[linear-gradient(180deg,rgba(30,41,59,0.98),rgba(15,23,42,0.96))] shadow-[0_18px_44px_rgba(15,23,42,0.32)] ring-1 ring-sky-400/10"
-                        : "border-white/8 bg-[linear-gradient(180deg,rgba(17,24,39,0.94),rgba(15,23,42,0.96))] hover:-translate-y-0.5 hover:scale-[1.01] hover:border-white/14 hover:bg-[linear-gradient(180deg,rgba(23,31,48,0.98),rgba(15,23,42,0.98))] hover:shadow-[0_18px_36px_rgba(15,23,42,0.26)]"
+                        ? "border-sky-300 bg-sky-500 text-white shadow-[0_18px_44px_rgba(14,165,233,0.24)] ring-1 ring-sky-200 dark:border-sky-400/25 dark:bg-[linear-gradient(180deg,rgba(30,41,59,0.98),rgba(15,23,42,0.96))] dark:shadow-[0_18px_44px_rgba(15,23,42,0.32)] dark:ring-sky-400/10"
+                        : "border-sky-100 bg-white text-slate-900 shadow-sm shadow-sky-500/10 hover:-translate-y-0.5 hover:scale-[1.01] hover:border-sky-200 hover:bg-sky-50 hover:shadow-[0_18px_36px_rgba(14,165,233,0.16)] dark:border-white/8 dark:bg-[linear-gradient(180deg,rgba(17,24,39,0.94),rgba(15,23,42,0.96))] dark:text-slate-100 dark:hover:border-white/14 dark:hover:bg-[linear-gradient(180deg,rgba(23,31,48,0.98),rgba(15,23,42,0.98))] dark:hover:shadow-[0_18px_36px_rgba(15,23,42,0.26)]"
                     }`}
                   >
-                    <div className={`absolute inset-x-0 top-0 h-px transition-opacity duration-200 ${active ? "bg-sky-400/60 opacity-100" : "bg-white/15 opacity-0 group-hover:opacity-100"}`} />
+                    <div className={`absolute inset-x-0 top-0 h-px transition-opacity duration-200 ${active ? "bg-white/70 opacity-100 dark:bg-sky-400/60" : "bg-sky-300/50 opacity-0 group-hover:opacity-100 dark:bg-white/15"}`} />
                     <CardHeader className="flex min-h-[176px] flex-col items-center justify-center gap-4 px-6 py-6 text-center">
-                      <CardTitle className="text-[1.1rem] font-semibold tracking-[0.015em] text-slate-100">{status}</CardTitle>
-                      <CardDescription className="text-[1.5rem] font-semibold leading-none text-slate-200">{count} roles</CardDescription>
-                      <p className="text-[11px] text-slate-500 transition-colors duration-200 group-hover:text-slate-300">
+                      <CardTitle className={`text-[1.1rem] font-semibold tracking-[0.015em] ${active ? "text-white" : "text-slate-900 dark:text-slate-100"}`}>{status}</CardTitle>
+                      <CardDescription className={`text-[1.5rem] font-semibold leading-none ${active ? "text-white" : "text-slate-700 dark:text-slate-200"}`}>{count} roles</CardDescription>
+                      <p className={`text-[11px] transition-colors duration-200 ${active ? "text-sky-50" : "text-sky-700 group-hover:text-sky-800 dark:text-slate-500 dark:group-hover:text-slate-300"}`}>
                         {active ? "Viewing applications" : "Tap to open"}
                       </p>
                     </CardHeader>

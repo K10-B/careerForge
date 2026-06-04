@@ -45,7 +45,7 @@ export default async function DashboardPage() {
               <CardTitle>Recent resumes</CardTitle>
               <CardDescription>Pick up where you left off and keep iterating fast.</CardDescription>
             </div>
-            <Button asChild variant="ghost" className="rounded-full border border-white/8 bg-white/[0.04] px-4 text-slate-200 shadow-[0_8px_24px_rgba(2,6,23,0.18)] hover:bg-white/[0.07] hover:text-white"><Link href="/dashboard/resumes">View all</Link></Button>
+            <Button asChild variant="ghost" className="rounded-full border border-sky-100 bg-white px-4 text-sky-700 hover:bg-sky-50 hover:text-sky-800 dark:border-white/8 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:bg-white/[0.07] dark:hover:text-white"><Link href="/dashboard/resumes">View all</Link></Button>
           </CardHeader>
           <CardContent>
             {resumes.length ? (
@@ -88,9 +88,9 @@ export default async function DashboardPage() {
               <CardDescription>Jump straight into the highest-leverage workflows.</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-wrap gap-3">
-              <Button asChild variant="outline" className="w-[220px] justify-between bg-slate-950/55 hover:bg-slate-900/80"><Link href="/dashboard/resumes/new"><span className="inline-flex items-center gap-2"><FilePlus2 className="h-4 w-4" />New resume</span><ArrowRight className="h-4 w-4" /></Link></Button>
-              <Button asChild variant="outline" className="w-[220px] justify-between bg-slate-950/55 hover:bg-slate-900/80"><Link href="/dashboard/cover-letters"><span className="inline-flex items-center gap-2"><PenSquare className="h-4 w-4" />Generate letter</span><ArrowRight className="h-4 w-4" /></Link></Button>
-              <Button asChild variant="outline" className="w-[220px] justify-between bg-slate-950/55 hover:bg-slate-900/80"><Link href="/dashboard/job-tracker"><span className="inline-flex items-center gap-2"><BrainCircuit className="h-4 w-4" />Track applications</span><ArrowRight className="h-4 w-4" /></Link></Button>
+              <Button asChild variant="outline" className="w-[220px] justify-between border-sky-200 bg-sky-50 text-slate-900 shadow-sm shadow-sky-500/10 hover:bg-sky-100 dark:border-white/8 dark:bg-slate-950/55 dark:text-slate-200 dark:hover:bg-slate-900/80"><Link href="/dashboard/resumes/new"><span className="inline-flex items-center gap-2"><FilePlus2 className="h-4 w-4 text-sky-600 dark:text-slate-200" />New resume</span><ArrowRight className="h-4 w-4" /></Link></Button>
+              <Button asChild variant="outline" className="w-[220px] justify-between border-sky-200 bg-sky-50 text-slate-900 shadow-sm shadow-sky-500/10 hover:bg-sky-100 dark:border-white/8 dark:bg-slate-950/55 dark:text-slate-200 dark:hover:bg-slate-900/80"><Link href="/dashboard/cover-letters"><span className="inline-flex items-center gap-2"><PenSquare className="h-4 w-4 text-sky-600 dark:text-slate-200" />Generate letter</span><ArrowRight className="h-4 w-4" /></Link></Button>
+              <Button asChild variant="outline" className="w-[220px] justify-between border-sky-200 bg-sky-50 text-slate-900 shadow-sm shadow-sky-500/10 hover:bg-sky-100 dark:border-white/8 dark:bg-slate-950/55 dark:text-slate-200 dark:hover:bg-slate-900/80"><Link href="/dashboard/job-tracker"><span className="inline-flex items-center gap-2"><BrainCircuit className="h-4 w-4 text-sky-600 dark:text-slate-200" />Track applications</span><ArrowRight className="h-4 w-4" /></Link></Button>
             </CardContent>
           </Card>
 

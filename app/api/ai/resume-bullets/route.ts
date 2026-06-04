@@ -6,6 +6,19 @@ import { generateText } from "@/lib/gemini";
 import { prisma } from "@/lib/prisma";
 import { improveBulletSchema } from "@/lib/validations";
 
+function cleanResumeBulletOutput(input: string) {
+  return input
+    .trim()
+    .replace(/^["'`]+|["'`]+$/g, "")
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/__(.*?)__/g, "$1")
+    .replace(/\*(.*?)\*/g, "$1")
+    .replace(/_(.*?)_/g, "$1")
+    .replace(/^\s*[-*•]\s+/, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 export async function POST(request: Request) {
   try {
     const session = await auth();
@@ -20,8 +33,8 @@ export async function POST(request: Request) {
     const body = await request.json();
     const values = improveBulletSchema.parse(body);
 
-    const prompt = `You are an expert executive resume writer. Rewrite the following resume bullet with the action "${values.action}". Keep it concise, metric-oriented, and ATS-friendly. Role context: ${values.role ?? "General professional role"}. Return only the rewritten bullet. Bullet: ${values.bullet}`;
-    const suggestion = await generateText(prompt);
+    const prompt = `You are an expert executive resume writer. Rewrite the following resume bullet with the action "${values.action}". Keep it concise, metric-oriented, and ATS-friendly. Role context: ${values.role ?? "General professional role"}. Return only the rewritten bullet as plain text. Do not use Markdown, bold text, italics, bullets, quotes, or formatting symbols. Bullet: ${values.bullet}`;
+    const suggestion = cleanResumeBulletOutput(await generateText(prompt));
 
     await ensureUsagePeriod(session.user.id);
     await prisma.userUsage.upsert({

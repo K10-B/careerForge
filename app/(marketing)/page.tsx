@@ -41,7 +41,7 @@ const faqs = [
 
 export default function LandingPage() {
   return (
-    <main>
+    <main className="overflow-hidden">
       <section className="grid-pattern relative overflow-hidden px-6 pb-24 pt-16 md:pb-32 md:pt-24">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
           <AnimatedSection>
@@ -82,39 +82,39 @@ export default function LandingPage() {
 
           <AnimatedSection delay={0.1}>
             <div className="glass shadow-glow rounded-[36px] p-5">
-              <div className="rounded-[30px] border border-border/70 bg-slate-950 p-5 text-slate-50 dark:bg-slate-900">
-                <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div className="rounded-[30px] border border-sky-200/80 bg-sky-50/90 p-5 text-slate-950 shadow-[0_20px_70px_rgba(14,165,233,0.12)] dark:border-border/70 dark:bg-slate-900 dark:text-slate-50">
+                <div className="flex items-center justify-between border-b border-sky-200/80 pb-4 dark:border-white/10">
                   <div>
-                    <p className="text-sm text-slate-400">Product preview</p>
+                    <p className="text-sm text-sky-700 dark:text-slate-400">Product preview</p>
                     <h2 className="mt-1 text-xl font-semibold">Your search, finally organized</h2>
                   </div>
-                  <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs text-emerald-300">AI-ready</span>
+                  <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs text-emerald-700 dark:text-emerald-300">AI-ready</span>
                 </div>
                 <div className="mt-5 grid gap-4">
-                  <div className="rounded-[24px] border border-white/10 bg-white/5 p-4">
+                  <div className="rounded-[24px] border border-sky-200/80 bg-white/80 p-4 dark:border-white/10 dark:bg-white/5">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-slate-400">Resume score uplift</p>
+                        <p className="text-sm text-sky-700 dark:text-slate-400">Resume score uplift</p>
                         <p className="mt-2 text-3xl font-semibold">+34%</p>
                       </div>
-                      <Target className="h-10 w-10 text-cyan-300" />
+                      <Target className="h-10 w-10 text-sky-500 dark:text-cyan-300" />
                     </div>
                   </div>
                   <div className="grid gap-4 md:grid-cols-2">
-                    <div className="rounded-[24px] border border-white/10 bg-white/5 p-4">
-                      <p className="text-sm text-slate-400">Active applications</p>
+                    <div className="rounded-[24px] border border-sky-200/80 bg-white/80 p-4 dark:border-white/10 dark:bg-white/5">
+                      <p className="text-sm text-sky-700 dark:text-slate-400">Active applications</p>
                       <p className="mt-2 text-2xl font-semibold">18</p>
-                      <p className="mt-3 text-xs text-slate-400">5 interviews in motion</p>
+                      <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">5 interviews in motion</p>
                     </div>
-                    <div className="rounded-[24px] border border-white/10 bg-gradient-to-br from-sky-500/20 to-emerald-500/20 p-4">
-                      <p className="text-sm text-slate-300">AI cover letter</p>
-                      <p className="mt-2 text-sm leading-6 text-slate-100">"I thrive where product clarity, systems thinking, and measured execution all matter at once..."</p>
+                    <div className="rounded-[24px] border border-sky-200/80 bg-gradient-to-br from-sky-100 to-emerald-100 p-4 dark:border-white/10 dark:from-sky-500/20 dark:to-emerald-500/20">
+                      <p className="text-sm text-sky-800 dark:text-slate-300">AI cover letter</p>
+                      <p className="mt-2 text-sm leading-6 text-slate-800 dark:text-slate-100">"I thrive where product clarity, systems thinking, and measured execution all matter at once..."</p>
                     </div>
                   </div>
-                  <div className="rounded-[24px] border border-white/10 bg-white/5 p-4">
+                  <div className="rounded-[24px] border border-sky-200/80 bg-white/80 p-4 dark:border-white/10 dark:bg-white/5">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-slate-400">Resume builder</p>
+                        <p className="text-sm text-sky-700 dark:text-slate-400">Resume builder</p>
                         <p className="mt-1 text-base font-medium">Live preview, AI bullet tuning, export-ready formatting</p>
                       </div>
                       <div className="h-3 w-24 rounded-full bg-gradient-to-r from-sky-400 to-emerald-400" />
@@ -136,7 +136,7 @@ export default function LandingPage() {
         </div>
       </AnimatedSection>
 
-      <AnimatedSection id="features" className="px-6 py-20">
+      <AnimatedSection id="features" className="scroll-mt-24 border-y border-border/50 bg-secondary/20 px-6 py-20">
         <div className="mx-auto max-w-7xl">
           <div className="max-w-2xl">
             <p className="text-sm font-medium text-accent">Features</p>
@@ -166,7 +166,7 @@ export default function LandingPage() {
         </div>
       </AnimatedSection>
 
-      <AnimatedSection className="px-6 py-20">
+      <AnimatedSection className="border-b border-border/50 bg-card/25 px-6 py-16 md:py-20">
         <div className="mx-auto max-w-7xl rounded-[36px] border border-border/70 bg-card/70 p-8 backdrop-blur-xl md:p-12">
           <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
             <div>
@@ -181,7 +181,7 @@ export default function LandingPage() {
                 ["Thoughtful empty states", "Every page stays guided, even before your first save."],
                 ["Responsive layouts", "Built to feel intentional across desktop, tablet, and mobile."],
               ].map(([title, description]) => (
-                <div key={title} className="rounded-[28px] border border-border/70 bg-background/80 p-5 transition-transform duration-200 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(2,6,23,0.18)]">
+                <div key={title} className="rounded-[28px] border border-border/70 bg-background/70 p-5 shadow-[0_18px_48px_rgba(2,6,23,0.10)] transition-transform duration-200 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(2,6,23,0.18)]">
                   <p className="font-medium">{title}</p>
                   <p className="mt-2 text-sm text-muted-foreground">{description}</p>
                 </div>
@@ -191,8 +191,8 @@ export default function LandingPage() {
         </div>
       </AnimatedSection>
 
-      <AnimatedSection className="px-6 py-20">
-        <div className="mx-auto max-w-7xl rounded-[36px] border border-border/70 bg-gradient-to-br from-sky-500/8 to-emerald-500/8 p-8 md:p-12">
+      <AnimatedSection className="border-b border-border/50 bg-secondary/25 px-6 py-14 md:py-16">
+        <div className="mx-auto max-w-7xl rounded-[36px] border border-border/70 bg-card/75 p-8 backdrop-blur-xl md:p-12">
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-sm font-medium text-accent">Pricing teaser</p>
@@ -203,7 +203,7 @@ export default function LandingPage() {
         </div>
       </AnimatedSection>
 
-      <AnimatedSection id="faq" className="px-6 py-20">
+      <AnimatedSection id="faq" className="scroll-mt-24 bg-card/20 px-6 py-16 md:py-20">
         <div className="mx-auto max-w-5xl">
           <div className="text-center">
             <p className="text-sm font-medium text-accent">FAQ</p>

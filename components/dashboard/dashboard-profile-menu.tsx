@@ -79,13 +79,13 @@ export function DashboardProfileMenu({ name, email, compact = false }: Dashboard
         type="button"
         aria-label="Open account menu"
         onClick={() => setOpen((value) => !value)}
-        className={`group relative flex items-center justify-center rounded-full border-2 border-cyan-300/70 bg-gradient-to-br from-[#163a63] via-[#102742] to-[#0b1323] font-bold text-white shadow-[0_0_0_1px_rgba(103,232,249,0.24),0_12px_28px_rgba(2,6,23,0.24)] transition-all duration-200 hover:-translate-y-0.5 hover:border-cyan-200/90 hover:from-[#1a4777] hover:via-[#13304f] hover:to-[#0b1323] hover:shadow-[0_0_0_1px_rgba(103,232,249,0.2),0_18px_36px_rgba(2,6,23,0.32)] ${
+        className={`group relative flex items-center justify-center rounded-full border-2 border-sky-200 bg-gradient-to-br from-sky-500 via-sky-600 to-cyan-500 font-bold text-white shadow-[0_0_0_1px_rgba(14,165,233,0.18),0_12px_28px_rgba(14,165,233,0.18)] transition-all duration-200 hover:-translate-y-0.5 hover:border-sky-300 hover:from-sky-400 hover:via-sky-500 hover:to-cyan-400 hover:shadow-[0_0_0_1px_rgba(14,165,233,0.22),0_18px_36px_rgba(14,165,233,0.24)] dark:border-cyan-300/70 dark:from-[#163a63] dark:via-[#102742] dark:to-[#0b1323] dark:shadow-[0_0_0_1px_rgba(103,232,249,0.24),0_12px_28px_rgba(2,6,23,0.24)] dark:hover:border-cyan-200/90 dark:hover:from-[#1a4777] dark:hover:via-[#13304f] dark:hover:to-[#0b1323] dark:hover:shadow-[0_0_0_1px_rgba(103,232,249,0.2),0_18px_36px_rgba(2,6,23,0.32)] ${
           compact ? "h-10 w-10 text-sm" : "h-14 w-14 text-base"
         }`}
       >
         <span className="leading-none">{initials(name)}</span>
         <span
-          className={`absolute flex items-center justify-center rounded-full border-2 border-background bg-cyan-400 shadow-[0_0_0_4px_rgba(34,211,238,0.2)] ${
+          className={`absolute flex items-center justify-center rounded-full border-2 border-background bg-sky-500 shadow-[0_0_0_4px_rgba(14,165,233,0.18)] dark:bg-cyan-400 dark:shadow-[0_0_0_4px_rgba(34,211,238,0.2)] ${
             compact ? "bottom-0 right-0 h-3.5 w-3.5" : "bottom-0.5 right-0.5 h-5 w-5"
           }`}
         >
@@ -96,11 +96,11 @@ export function DashboardProfileMenu({ name, email, compact = false }: Dashboard
         ? createPortal(
             <div
               ref={menuRef}
-              className="fixed z-[140] w-64 rounded-[22px] border border-border/70 bg-slate-950/98 p-3 shadow-[0_24px_64px_rgba(2,6,23,0.46)] backdrop-blur-xl"
+              className="fixed z-[140] w-64 rounded-[22px] border border-sky-100 bg-white/98 p-3 shadow-[0_24px_64px_rgba(14,165,233,0.16)] backdrop-blur-xl dark:border-border/70 dark:bg-slate-950/98 dark:shadow-[0_24px_64px_rgba(2,6,23,0.46)]"
               style={{ top: menuPosition.top, left: menuPosition.left }}
             >
           <div className="flex items-center gap-3 rounded-[18px] px-1 py-1">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-cyan-300/40 bg-gradient-to-br from-[#163a63] via-[#102742] to-[#0b1323] font-bold text-white shadow-[0_0_0_1px_rgba(103,232,249,0.12),0_8px_20px_rgba(2,6,23,0.22)]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-sky-200 bg-gradient-to-br from-sky-500 via-sky-600 to-cyan-500 font-bold text-white shadow-[0_0_0_1px_rgba(14,165,233,0.14),0_8px_20px_rgba(14,165,233,0.18)] dark:border-cyan-300/40 dark:from-[#163a63] dark:via-[#102742] dark:to-[#0b1323] dark:shadow-[0_0_0_1px_rgba(103,232,249,0.12),0_8px_20px_rgba(2,6,23,0.22)]">
               {initials(name)}
             </div>
             <div className="min-w-0">

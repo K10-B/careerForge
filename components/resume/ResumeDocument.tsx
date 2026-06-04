@@ -477,9 +477,9 @@ export function ResumeDocument({ values, documentId = "resume-document", classNa
         </div>
       ) : (
         <div className="flex min-h-[calc(1123px-64px)] items-center justify-center text-center">
-          <div className="max-w-sm space-y-3">
-            <p className="text-sm font-semibold uppercase tracking-[0.16em]">Live Preview</p>
-            <p className="text-[15px] leading-7">Start filling in your resume details and the document preview will update here in real time.</p>
+          <div className="max-w-[460px] space-y-4">
+            <p className="text-[22px] font-semibold uppercase tracking-[0.18em]">Live Preview</p>
+            <p className="text-[20px] leading-8">Start filling in your resume details and the document preview will update here in real time.</p>
           </div>
         </div>
       )}

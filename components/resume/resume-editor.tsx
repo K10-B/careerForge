@@ -26,18 +26,31 @@ const bulletActions = [
 ] as const;
 
 const fieldClass =
-  "h-10 w-full rounded-xl border-white/6 bg-slate-950/42 px-3.5 text-sm text-slate-100 shadow-none placeholder:text-slate-500 focus-visible:border-sky-400/35 focus-visible:ring-2 focus-visible:ring-sky-400/10";
+  "h-10 w-full rounded-xl border-sky-100 bg-white px-3.5 text-sm text-slate-900 shadow-none placeholder:text-slate-400 focus-visible:border-sky-400/50 focus-visible:ring-2 focus-visible:ring-sky-400/15 dark:border-white/6 dark:bg-slate-950/42 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus-visible:border-sky-400/35 dark:focus-visible:ring-sky-400/10";
 const textareaClass =
-  "w-full rounded-xl border-white/6 bg-slate-950/42 px-3.5 py-2.5 text-sm leading-6 text-slate-100 shadow-none placeholder:text-slate-500 focus-visible:border-sky-400/35 focus-visible:ring-2 focus-visible:ring-sky-400/10 resize-y";
+  "w-full rounded-xl border-sky-100 bg-white px-3.5 py-2.5 text-sm leading-6 text-slate-900 shadow-none placeholder:text-slate-400 focus-visible:border-sky-400/50 focus-visible:ring-2 focus-visible:ring-sky-400/15 dark:border-white/6 dark:bg-slate-950/42 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus-visible:border-sky-400/35 dark:focus-visible:ring-sky-400/10 resize-y";
 const tertiaryButtonClass =
-  "h-8 shrink-0 rounded-full border border-white/6 bg-white/[0.03] px-3 text-xs font-medium text-slate-300 hover:bg-white/[0.05] hover:text-white";
+  "h-8 shrink-0 rounded-full border border-sky-100 bg-white px-3 text-xs font-medium text-sky-700 hover:bg-sky-50 hover:text-sky-800 dark:border-white/6 dark:bg-white/[0.03] dark:text-slate-300 dark:hover:bg-white/[0.05] dark:hover:text-white";
 const subtleActionClass =
-  "h-8 shrink-0 rounded-full px-3 text-xs text-slate-400 hover:bg-white/[0.05] hover:text-slate-100";
+  "h-8 shrink-0 rounded-full px-3 text-xs text-sky-700 hover:bg-sky-50 hover:text-sky-800 dark:text-slate-400 dark:hover:bg-white/[0.05] dark:hover:text-slate-100";
 const aiActionClass =
-  "h-7 shrink-0 whitespace-nowrap rounded-full border border-white/6 bg-white/[0.02] px-2 text-[10px] font-medium text-slate-300 hover:bg-white/[0.05] hover:text-white";
+  "h-7 shrink-0 whitespace-nowrap rounded-full border border-sky-100 bg-white px-2 text-[10px] font-medium text-sky-700 hover:bg-sky-50 hover:text-sky-800 dark:border-white/6 dark:bg-white/[0.02] dark:text-slate-300 dark:hover:bg-white/[0.05] dark:hover:text-white";
 const skillChipClass =
-  "inline-flex max-w-full items-center gap-1.5 rounded-full border border-white/6 bg-white/[0.03] px-2.5 py-1 text-xs text-slate-300";
+  "inline-flex max-w-full items-center gap-1.5 rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs text-sky-800 dark:border-white/6 dark:bg-white/[0.03] dark:text-slate-300";
 const dateFieldClass = cn(fieldClass, "min-w-[140px]");
+
+function cleanAiBulletSuggestion(input: unknown) {
+  return String(input ?? "")
+    .trim()
+    .replace(/^["'`]+|["'`]+$/g, "")
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/__(.*?)__/g, "$1")
+    .replace(/\*(.*?)\*/g, "$1")
+    .replace(/_(.*?)_/g, "$1")
+    .replace(/^\s*[-*•]\s+/, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
 function parseSkillsInput(input: string) {
   return input
@@ -58,12 +71,12 @@ type SectionProps = {
 function EditorSection({ eyebrow, title, description, actions, children, className }: SectionProps) {
 
   return (
-    <section className={cn("space-y-5 border-t border-white/6 pt-8 first:border-t-0 first:pt-0", className)}>
+    <section className={cn("space-y-5 border-t border-sky-100 pt-8 first:border-t-0 first:pt-0 dark:border-white/6", className)}>
       <div className="flex min-w-0 flex-col gap-4 2xl:flex-row 2xl:items-start 2xl:justify-between">
         <div className="min-w-0 flex-1">
-          {eyebrow ? <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-sky-300/85">{eyebrow}</p> : null}
-          <h2 className="mt-1 text-lg font-semibold tracking-tight text-white">{title}</h2>
-          {description ? <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-400">{description}</p> : null}
+          {eyebrow ? <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-sky-500 dark:text-sky-300/85">{eyebrow}</p> : null}
+          <h2 className="mt-1 text-lg font-semibold tracking-tight text-slate-900 dark:text-white">{title}</h2>
+          {description ? <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-400">{description}</p> : null}
         </div>
         {actions ? <div className="flex min-w-0 flex-wrap items-center gap-2 2xl:justify-end">{actions}</div> : null}
       </div>
@@ -75,9 +88,9 @@ function EditorSection({ eyebrow, title, description, actions, children, classNa
 function Field({ label, hint, className, children }: { label: string; hint?: string; className?: string; children: React.ReactNode }) {
   return (
     <div className={cn("min-w-0 space-y-2", className)}>
-      <Label className="block text-[11px] font-medium uppercase tracking-[0.14em] text-slate-400">{label}</Label>
+      <Label className="block text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">{label}</Label>
       {children}
-      {hint ? <p className="text-xs leading-5 text-slate-500">{hint}</p> : null}
+      {hint ? <p className="text-xs leading-5 text-slate-500 dark:text-slate-500">{hint}</p> : null}
     </div>
   );
 }
@@ -102,11 +115,11 @@ function ExperienceRole({
   onRemove: () => void;
 }) {
   return (
-    <motion.div layout className="rounded-[20px] bg-white/[0.02] px-4 py-4 ring-1 ring-white/5">
+    <motion.div layout className="rounded-[20px] bg-white/75 px-4 py-4 ring-1 ring-sky-100 dark:bg-white/[0.02] dark:ring-white/5">
       <div className="flex min-w-0 flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
         <div className="min-w-0 flex-1">
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Experience item</p>
-          <p className="mt-1 text-sm text-slate-300">Structure the role first, then tighten the evidence beneath it.</p>
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Structure the role first, then tighten the evidence beneath it.</p>
         </div>
         <Button type="button" variant="ghost" size="sm" className={subtleActionClass} onClick={onRemove}>
           <Trash2 className="mr-1.5 h-3.5 w-3.5" />
@@ -129,13 +142,13 @@ function ExperienceRole({
         </Field>
       </div>
 
-      <div className="mt-6 space-y-3 border-t border-white/6 pt-4">
+      <div className="mt-6 space-y-3 border-t border-sky-100 pt-4 dark:border-white/6">
         {item.bullets.map((bullet, bulletIndex) => {
           const key = `${item.id}-${bulletIndex}`;
           return (
-            <div key={key} className="space-y-3 rounded-2xl bg-slate-950/18 px-3.5 py-3 ring-1 ring-white/4">
+            <div key={key} className="space-y-3 rounded-2xl bg-sky-50/70 px-3.5 py-3 ring-1 ring-sky-100 dark:bg-slate-950/18 dark:ring-white/4">
               <div className="space-y-2">
-                <p className="text-xs font-medium text-slate-400">Bullet {bulletIndex + 1}</p>
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Bullet {bulletIndex + 1}</p>
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
                     {bulletActions.map((action) => (
@@ -165,7 +178,7 @@ function ExperienceRole({
                             }
 
                             const nextBullets = [...item.bullets];
-                            nextBullets[bulletIndex] = data.suggestion.trim();
+                            nextBullets[bulletIndex] = cleanAiBulletSuggestion(data.suggestion);
                             updateExperience(index, "bullets", nextBullets);
                             setMessage(`AI ${action.value} applied.`);
                           } catch (error) {
@@ -294,14 +307,14 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
 
   return (
     <>
-      <div className="grid gap-6 2xl:grid-cols-[minmax(0,0.95fr)_minmax(500px,1.05fr)]">
+      <div className="grid gap-6 2xl:grid-cols-[minmax(620px,1.15fr)_minmax(460px,0.85fr)]">
         <div className="min-w-0 space-y-6">
-          <section className="rounded-[28px] border border-white/7 bg-slate-950/55 px-6 py-6 shadow-[0_20px_70px_rgba(2,6,23,0.26)] backdrop-blur-xl">
+          <section className="rounded-[24px] border border-sky-100 bg-white/90 px-4 py-5 shadow-[0_20px_70px_rgba(14,165,233,0.12)] backdrop-blur-xl dark:border-white/7 dark:bg-slate-950/55 dark:shadow-[0_20px_70px_rgba(2,6,23,0.26)] sm:rounded-[28px] sm:px-6 sm:py-6">
             <div className="space-y-5">
               <div className="min-w-0 max-w-3xl">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-300/85">Resume Builder</p>
-                <h1 className="mt-2 text-[1.9rem] font-semibold tracking-tight text-white">Build a cleaner, sharper narrative.</h1>
-                <p className="mt-2 text-sm leading-6 text-slate-400">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-500 dark:text-sky-300/85">Resume Builder</p>
+                <h1 className="mt-2 text-[1.9rem] font-semibold tracking-tight text-slate-950 dark:text-white">Build a cleaner, sharper narrative.</h1>
+                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
                   Edit the substance here, keep the structure light, and export a recruiter-ready document without dragging the app UI into the final output.
                 </p>
               </div>
@@ -311,7 +324,7 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
                     type="button"
                     variant="outline"
                     disabled={isExporting || isSaving}
-                    className="h-10 rounded-xl border-white/7 bg-white/[0.03] px-4.5 text-slate-200 hover:bg-white/[0.05]"
+                    className="h-10 rounded-xl border-sky-100 bg-white px-4.5 text-sky-700 hover:bg-sky-50 hover:text-sky-800 dark:border-white/7 dark:bg-white/[0.03] dark:text-slate-200 dark:hover:bg-white/[0.05] dark:hover:text-white"
                     onClick={async () => {
                       setMessage("");
                       setIsExporting(true);
@@ -358,13 +371,13 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
                     Save resume
                   </Button>
                 </div>
-                <p className="max-w-md text-xs text-slate-500">Save keeps your latest edits synced. Export generates the recruiter-ready PDF.</p>
+                <p className="max-w-md text-xs text-slate-500 dark:text-slate-500">Save keeps your latest edits synced. Export generates the recruiter-ready PDF.</p>
               </div>
             </div>
-            {message ? <p className="mt-4 text-sm text-slate-400">{message}</p> : null}
+            {message ? <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">{message}</p> : null}
           </section>
 
-          <div className="rounded-[28px] border border-white/6 bg-white/[0.025] px-6 py-6 shadow-[0_16px_50px_rgba(2,6,23,0.16)] backdrop-blur-sm">
+          <div className="rounded-[24px] border border-sky-100 bg-white/80 px-4 py-5 shadow-[0_16px_50px_rgba(14,165,233,0.10)] backdrop-blur-sm dark:border-white/6 dark:bg-white/[0.025] dark:shadow-[0_16px_50px_rgba(2,6,23,0.16)] sm:rounded-[28px] sm:px-6 sm:py-6">
             <div className="space-y-8">
               <EditorSection
                 eyebrow="Identity"
@@ -410,7 +423,7 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
                   <Button
                     type="button"
                     variant="outline"
-                    className="h-9 rounded-xl border-white/7 bg-white/[0.03] px-4 text-slate-200 hover:bg-white/[0.05]"
+                    className="h-9 rounded-xl border-sky-100 bg-white px-4 text-sky-700 hover:bg-sky-50 hover:text-sky-800 dark:border-white/7 dark:bg-white/[0.03] dark:text-slate-200 dark:hover:bg-white/[0.05] dark:hover:text-white"
                     onClick={() =>
                       setValues((current) => ({
                         ...current,
@@ -476,11 +489,11 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
                 {(values.projects ?? []).length ? (
                   <div className="space-y-4">
                     {(values.projects ?? []).map((project, index) => (
-                      <div key={project.id} className="rounded-[20px] bg-white/[0.02] px-4 py-4 ring-1 ring-white/5">
+                      <div key={project.id} className="rounded-[20px] bg-white/75 px-4 py-4 ring-1 ring-sky-100 dark:bg-white/[0.02] dark:ring-white/5">
                         <div className="flex min-w-0 flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
                           <div className="min-w-0 flex-1">
                             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Project {index + 1} (optional)</p>
-                            <p className="mt-1 text-sm text-slate-300">Add a focused project only if it strengthens the story of this resume.</p>
+                            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Add a focused project only if it strengthens the story of this resume.</p>
                           </div>
                           <Button
                             type="button"
@@ -514,8 +527,8 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
                           <div className="space-y-3.5">
                             <div className="flex min-w-0 flex-col gap-1.5 sm:flex-row sm:items-end sm:justify-between">
                               <div className="min-w-0">
-                                <Label className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-400">Project description</Label>
-                                <p className="mt-1 text-xs leading-5 text-slate-500">Write the project description as bullets for the preview and PDF.</p>
+                                <Label className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Project description</Label>
+                                <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-500">Write the project description as bullets for the preview and PDF.</p>
                               </div>
                             </div>
                             {(() => {
@@ -524,9 +537,9 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
                               return (
                                 <div className="space-y-3.5">
                                   {safeBullets.map((bullet, bulletIndex) => (
-                                    <div key={`${project.id}-bullet-${bulletIndex}`} className="space-y-3 rounded-2xl bg-slate-950/18 px-3.5 py-3.5 ring-1 ring-white/4">
+                                    <div key={`${project.id}-bullet-${bulletIndex}`} className="space-y-3 rounded-2xl bg-sky-50/70 px-3.5 py-3.5 ring-1 ring-sky-100 dark:bg-slate-950/18 dark:ring-white/4">
                                       <div className="space-y-2">
-                                        <p className="text-xs font-medium text-slate-400">Bullet {bulletIndex + 1}</p>
+                                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Bullet {bulletIndex + 1}</p>
                                         <div className="min-w-0">
                                           <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
                                             {bulletActions.map((action) => (
@@ -560,7 +573,7 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
                                                     }
 
                                                     const nextBullets = [...safeBullets];
-                                                    nextBullets[bulletIndex] = data.suggestion.trim();
+                                                    nextBullets[bulletIndex] = cleanAiBulletSuggestion(data.suggestion);
                                                     updateProject(index, "description", joinProjectDescription(nextBullets));
                                                     setMessage(`AI ${action.value} applied.`);
                                                   } catch (error) {
@@ -631,7 +644,7 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
                     ))}
                   </div>
                 ) : (
-                  <div className="rounded-[20px] border border-dashed border-white/8 bg-white/[0.02] px-4 py-5 text-sm text-slate-400">
+                  <div className="rounded-[20px] border border-dashed border-sky-200 bg-sky-50/60 px-4 py-5 text-sm text-slate-600 dark:border-white/8 dark:bg-white/[0.02] dark:text-slate-400">
                     No projects added yet. This section is optional.
                   </div>
                 )}
@@ -663,7 +676,7 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
                 >
                   <div className="space-y-3">
                     {values.education.map((item, index) => (
-                      <div key={item.id} className="rounded-[18px] bg-white/[0.02] px-4 py-4 ring-1 ring-white/5">
+                      <div key={item.id} className="rounded-[18px] bg-white/75 px-4 py-4 ring-1 ring-sky-100 dark:bg-white/[0.02] dark:ring-white/5">
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-3">
                           <Field label="School">
                             <Input onKeyDown={(e) => e.stopPropagation()} className={fieldClass} value={item.school} onChange={(e) => updateEducation(index, "school", e.target.value)} />
@@ -704,7 +717,7 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
                         }}
                       />
                     </Field>
-                    <p className="text-xs leading-5 text-slate-500">Examples: Communication, Leadership, Project Management, Excel, Customer Service, CRM, Figma, React</p>
+                    <p className="text-xs leading-5 text-slate-500 dark:text-slate-500">Examples: Communication, Leadership, Project Management, Excel, Customer Service, CRM, Figma, React</p>
                     {parsedSkills.length ? (
                       <div className="flex flex-wrap gap-2">
                         {parsedSkills.slice(0, 16).map((skill, index) => (
@@ -720,7 +733,7 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
                             }}
                           >
                             <span className="min-w-0 break-words">{skill}</span>
-                            <X className="h-3 w-3 shrink-0 text-slate-400" />
+                            <X className="h-3 w-3 shrink-0 text-sky-600 dark:text-slate-400" />
                           </button>
                         ))}
                         {parsedSkills.length > 16 ? <span className={skillChipClass}>+{parsedSkills.length - 16} more</span> : null}
@@ -756,7 +769,7 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
                 {(values.certifications ?? []).length ? (
                   <div className="space-y-3">
                     {(values.certifications ?? []).map((cert, index) => (
-                      <div key={cert.id} className="rounded-[18px] bg-white/[0.02] px-4 py-4 ring-1 ring-white/5">
+                      <div key={cert.id} className="rounded-[18px] bg-white/75 px-4 py-4 ring-1 ring-sky-100 dark:bg-white/[0.02] dark:ring-white/5">
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
                           <Field label="Certification" className="xl:col-span-2">
                             <Input onKeyDown={(e) => e.stopPropagation()} className={fieldClass} value={cert.name} onChange={(e) => updateCertification(index, "name", e.target.value.replace(/\s*\n+\s*/g, " "))} />
@@ -771,7 +784,7 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
                             <Input onKeyDown={(e) => e.stopPropagation()} className={dateFieldClass} value={cert.endDate} onChange={(e) => updateCertification(index, "endDate", e.target.value.replace(/\s*\n+\s*/g, " "))} />
                           </Field>
                         </div>
-                        <p className="text-xs text-slate-500">Example: Coursera - Google UX Design - 2023</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-500">Example: Coursera - Google UX Design - 2023</p>
 
                         <div className="mt-3">
                           <Button
@@ -794,7 +807,7 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
                     ))}
                   </div>
                 ) : (
-                  <div className="rounded-[20px] border border-dashed border-white/8 bg-white/[0.02] px-4 py-5 text-sm text-slate-400">
+                  <div className="rounded-[20px] border border-dashed border-sky-200 bg-sky-50/60 px-4 py-5 text-sm text-slate-600 dark:border-white/8 dark:bg-white/[0.02] dark:text-slate-400">
                     No certifications added yet. This section is optional.
                   </div>
                 )}
@@ -827,18 +840,18 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
         </div>
 
         <div className="min-w-0 space-y-4 2xl:sticky 2xl:top-4 2xl:self-start">
-          <Card className="overflow-hidden border-white/7 bg-slate-950/45 shadow-[0_18px_60px_rgba(2,6,23,0.24)]">
-            <CardHeader className="border-b border-white/6 pb-4">
+          <Card className="overflow-hidden border-sky-100 bg-white/85 shadow-[0_18px_60px_rgba(14,165,233,0.12)] dark:border-white/7 dark:bg-slate-950/45 dark:shadow-[0_18px_60px_rgba(2,6,23,0.24)]">
+            <CardHeader className="border-b border-sky-100 pb-4 dark:border-white/6">
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
-                  <CardTitle className="text-lg text-white">Live preview</CardTitle>
-                  <CardDescription className="text-slate-400">A larger document surface that stays closely aligned with the exported PDF.</CardDescription>
+                  <CardTitle className="text-lg text-slate-950 dark:text-white">Live preview</CardTitle>
+                  <CardDescription className="text-slate-600 dark:text-slate-400">A larger document surface that stays closely aligned with the exported PDF.</CardDescription>
                 </div>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="h-8 shrink-0 rounded-full border-white/7 bg-white/[0.03] px-3 text-xs text-slate-200 hover:bg-white/[0.05]"
+                  className="h-8 shrink-0 rounded-full border-sky-100 bg-white px-3 text-xs text-sky-700 hover:bg-sky-50 hover:text-sky-800 dark:border-white/7 dark:bg-white/[0.03] dark:text-slate-200 dark:hover:bg-white/[0.05] dark:hover:text-white"
                   onClick={() => setPreviewExpanded(true)}
                 >
                   <Expand className="mr-1.5 h-3.5 w-3.5" />
@@ -846,7 +859,7 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="h-[780px] p-3 sm:h-[820px] sm:p-4">
+            <CardContent className="p-3 sm:p-4">
               <ResumePreview values={deferredValues} />
             </CardContent>
           </Card>

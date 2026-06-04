@@ -11,9 +11,9 @@ import { DashboardProfileMenu } from "@/components/dashboard/dashboard-profile-m
 import { Button } from "@/components/ui/button";
 
 const navItems = [
-  { href: "#features", label: "Features" },
+  { href: "/#features", label: "Features" },
   { href: "/pricing", label: "Pricing" },
-  { href: "#faq", label: "FAQ" },
+  { href: "/#faq", label: "FAQ" },
 ];
 
 export function MarketingNavbar() {
@@ -36,7 +36,12 @@ export function MarketingNavbar() {
 
         <div className="hidden items-center gap-2 md:flex">
           {navItems.map((item) => (
-            <Button asChild key={item.href} variant="ghost">
+            <Button
+              asChild
+              key={item.href}
+              variant="ghost"
+              className="rounded-2xl text-slate-700 hover:bg-sky-500 hover:text-white hover:shadow-[0_12px_30px_rgba(14,165,233,0.26)] dark:text-slate-200 dark:hover:bg-white/[0.06] dark:hover:text-white dark:hover:shadow-none"
+            >
               <Link href={item.href}>{item.label}</Link>
             </Button>
           ))}
@@ -85,7 +90,7 @@ export function MarketingNavbar() {
           >
             <div className="grid gap-3">
               {navItems.map((item) => (
-                <Link key={item.href} href={item.href} className="rounded-2xl px-3 py-2 text-sm hover:bg-muted" onClick={() => setOpen(false)}>
+                <Link key={item.href} href={item.href} className="rounded-2xl px-3 py-2 text-sm text-slate-700 transition hover:bg-sky-500 hover:text-white hover:shadow-[0_12px_30px_rgba(14,165,233,0.26)] dark:text-slate-200 dark:hover:bg-white/[0.06] dark:hover:text-white dark:hover:shadow-none" onClick={() => setOpen(false)}>
                   {item.label}
                 </Link>
               ))}

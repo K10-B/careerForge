@@ -22,7 +22,7 @@ export function EmptyState({
           <h3 className="text-xl font-semibold">{title}</h3>
           <p className="mt-2 max-w-xl text-sm text-muted-foreground">{description}</p>
         </div>
-        <Button asChild>
+        <Button asChild className="bg-sky-500 text-white shadow-lg shadow-sky-500/20 hover:bg-sky-600">
           <Link href={href}>
             {cta}
             <ArrowRight className="ml-2 h-4 w-4" />

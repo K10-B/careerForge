@@ -38,7 +38,7 @@ function getMeasuredHeight(element: HTMLElement | null) {
   return Math.max(Math.ceil(element.getBoundingClientRect().height), element.scrollHeight, RESUME_DOCUMENT_MIN_HEIGHT);
 }
 
-export function ResumePreview({ values, previewId = "resume-preview", zoomLevel = 1, onFitLevelChange }: ResumePreviewProps) {
+export function ResumePreview({ values, previewId = "resume-preview", mode = "panel", zoomLevel = 1, onFitLevelChange }: ResumePreviewProps) {
   const shellRef = useRef<HTMLDivElement | null>(null);
   const measureRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const [viewportHeight, setViewportHeight] = useState(PREVIEW_FALLBACK_HEIGHT);
@@ -95,7 +95,7 @@ export function ResumePreview({ values, previewId = "resume-preview", zoomLevel 
       const usableHeight = Math.max(height - PREVIEW_STAGE_PADDING * 2, 360);
       const widthScale = usableWidth / RESUME_DOCUMENT_WIDTH;
       const heightScale = usableHeight / documentHeight;
-      const fitScale = Math.min(widthScale, heightScale);
+      const fitScale = mode === "panel" ? widthScale : Math.min(widthScale, heightScale);
       const nextScale = Math.max(PREVIEW_MIN_SCALE, Math.min(fitScale * zoomLevel, PREVIEW_MAX_SCALE));
 
       setViewportHeight(height);
@@ -112,11 +112,14 @@ export function ResumePreview({ values, previewId = "resume-preview", zoomLevel 
       observer.disconnect();
       window.removeEventListener("resize", updateLayout);
     };
-  }, [documentHeight, zoomLevel]);
+  }, [documentHeight, mode, zoomLevel]);
 
   const scaledWidth = RESUME_DOCUMENT_WIDTH * scale;
   const scaledHeight = documentHeight * scale;
-  const stageHeight = Math.max(viewportHeight, scaledHeight + PREVIEW_STAGE_PADDING * 2);
+  const stageHeight =
+    mode === "panel"
+      ? scaledHeight + PREVIEW_STAGE_PADDING * 2
+      : Math.max(viewportHeight, scaledHeight + PREVIEW_STAGE_PADDING * 2);
 
   return (
     <div id={previewId} ref={shellRef} className="relative h-full w-full">
@@ -135,7 +138,14 @@ export function ResumePreview({ values, previewId = "resume-preview", zoomLevel 
       </div>
 
       <div className="relative h-full w-full overflow-auto bg-transparent">
-        <div className="flex w-full justify-center" style={{ minHeight: `${stageHeight}px`, padding: `${PREVIEW_STAGE_PADDING}px` }}>
+        <div
+          className="flex w-full justify-center"
+          style={{
+            alignItems: "flex-start",
+            minHeight: `${stageHeight}px`,
+            padding: `${PREVIEW_STAGE_PADDING}px`,
+          }}
+        >
           <div id={`${previewId}-surface-frame`} className="shrink-0" style={{ width: `${scaledWidth}px`, height: `${scaledHeight}px` }}>
             <div
               id={`${previewId}-surface`}

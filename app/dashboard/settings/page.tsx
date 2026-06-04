@@ -39,7 +39,7 @@ export default async function SettingsPage({
     <div className="space-y-6">
       <BillingStatusWatcher enabled={params.billing === "processing" && billing?.status === "PENDING"} />
       <div className="space-y-4">
-        <Button asChild variant="ghost" className="h-9 w-fit rounded-full border border-white/8 bg-white/[0.03] px-3 text-slate-200 hover:bg-white/[0.06] hover:text-white">
+        <Button asChild variant="ghost" className="h-9 w-fit rounded-full border border-sky-100 bg-sky-50 px-3 text-sky-700 hover:bg-sky-100 hover:text-sky-800 dark:border-white/8 dark:bg-white/[0.03] dark:text-slate-200 dark:hover:bg-white/[0.06] dark:hover:text-white">
           <Link href="/dashboard">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back

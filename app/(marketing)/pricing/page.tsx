@@ -16,9 +16,30 @@ export default function PricingPage() {
           <p className="text-sm font-medium text-accent">Pricing</p>
           <h1 className="mt-3 text-4xl font-semibold tracking-tight md:text-5xl">Plans that scale with your search.</h1>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">Start with the essentials, then unlock unlimited AI support and deeper tracking once momentum builds.</p>
-          <div className="mx-auto mt-8 inline-flex rounded-full border border-border/70 bg-card/80 p-1">
-            <button className={`rounded-full px-4 py-2 text-sm ${!yearly ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`} onClick={() => setYearly(false)}>Monthly</button>
-            <button className={`rounded-full px-4 py-2 text-sm ${yearly ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`} onClick={() => setYearly(true)}>Yearly</button>
+          <div className="mx-auto mt-8 inline-grid grid-cols-2 rounded-full border border-sky-100 bg-white/90 p-1 shadow-sm shadow-sky-500/10 dark:border-border/70 dark:bg-card/80 dark:shadow-none">
+            <div className="relative col-span-2 grid grid-cols-2">
+              <motion.div
+                className="absolute inset-y-0 w-1/2 rounded-full bg-sky-500 shadow-[0_10px_26px_rgba(14,165,233,0.26)]"
+                animate={{ x: yearly ? "100%" : "0%" }}
+                transition={{ type: "spring", stiffness: 420, damping: 34 }}
+              />
+              <button
+                type="button"
+                aria-pressed={!yearly}
+                className={`relative z-10 rounded-full px-5 py-2 text-sm font-medium transition-colors duration-200 ${!yearly ? "text-white" : "text-slate-600 hover:text-sky-700 dark:text-muted-foreground dark:hover:text-slate-100"}`}
+                onClick={() => setYearly(false)}
+              >
+                Monthly
+              </button>
+              <button
+                type="button"
+                aria-pressed={yearly}
+                className={`relative z-10 rounded-full px-5 py-2 text-sm font-medium transition-colors duration-200 ${yearly ? "text-white" : "text-slate-600 hover:text-sky-700 dark:text-muted-foreground dark:hover:text-slate-100"}`}
+                onClick={() => setYearly(true)}
+              >
+                Yearly
+              </button>
+            </div>
           </div>
         </div>
 

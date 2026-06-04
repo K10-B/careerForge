@@ -4,7 +4,9 @@
     "private":  true,
     "description":  "CareerForge AI SaaS",
     "scripts":  {
-                    "dev":  "next dev",
+                    "dev":  "node scripts/dev-open.js",
+                    "dev:server":  "next dev",
+                    "dev:open":  "node scripts/dev-open.js",
                     "build":  "next build",
                     "start":  "next start",
                     "lint":  "next lint",
