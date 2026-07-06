@@ -27,9 +27,14 @@ Tone: ${values.tone}
 Job Description:
 ${values.jobDescription}
 
+Candidate Resume Context:
+${values.resumeContext || "No resume context provided."}
+
 Requirements:
 - Keep it to 3 short paragraphs.
 - Make it credible, specific, and modern.
+- Use the resume context to choose relevant experience, skills, and phrasing.
+- Do not invent employers, experience, metrics, or credentials not present in the resume context or job description.
 - Include a clear value proposition.
 - Do not use generic filler.
 - Return only the cover letter text.`;

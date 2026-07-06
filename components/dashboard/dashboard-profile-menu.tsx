@@ -6,10 +6,10 @@ import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
 import { FileText, LayoutDashboard, Settings } from "lucide-react";
-import { useTheme } from "next-themes";
 import { createPortal } from "react-dom";
 
 import { Button } from "@/components/ui/button";
+import { useAnimatedThemeToggle } from "@/lib/use-animated-theme-toggle";
 import { initials } from "@/lib/utils";
 
 type DashboardProfileMenuProps = {
@@ -22,11 +22,10 @@ export function DashboardProfileMenu({ name, email, compact = false }: Dashboard
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
-  const { resolvedTheme, setTheme } = useTheme();
+  const { isDark, toggleTheme } = useAnimatedThemeToggle();
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
-  const isDark = resolvedTheme === "dark";
   const themeLabel = !mounted ? "Toggle theme" : isDark ? "Light theme" : "Dark theme";
 
   useEffect(() => {
@@ -135,7 +134,7 @@ export function DashboardProfileMenu({ name, email, compact = false }: Dashboard
             </Link>
             <button
               type="button"
-              onClick={() => setTheme(isDark ? "light" : "dark")}
+              onClick={toggleTheme}
               className="flex items-center gap-3 rounded-[18px] px-3 py-2.5 text-sm text-muted-foreground transition-colors duration-200 hover:bg-muted hover:text-foreground"
             >
               <Image

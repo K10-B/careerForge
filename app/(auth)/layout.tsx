@@ -1,8 +1,13 @@
 import { Sparkles } from "lucide-react";
 
+import { ThemeToggle } from "@/components/layout/theme-toggle";
+
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <main className="grid min-h-screen bg-background lg:grid-cols-2">
+    <main className="relative grid min-h-screen bg-background lg:grid-cols-2">
+      <div className="absolute right-4 top-4 z-10">
+        <ThemeToggle />
+      </div>
       <div className="flex items-center justify-center px-6 py-12">{children}</div>
       <div className="hidden border-l border-border/60 lg:block">
         <div className="grid-pattern flex h-full items-center justify-center p-12">

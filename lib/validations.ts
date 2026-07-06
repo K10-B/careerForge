@@ -123,6 +123,7 @@ export const coverLetterSchema = z.object({
   company: z.string().min(2, "Company is required."),
   tone: z.string().min(2, "Tone is required."),
   jobDescription: z.string().min(30, "Paste enough context from the job description."),
+  resumeContext: z.string().optional().default(""),
 });
 
 export const improveBulletSchema = z.object({

@@ -52,6 +52,32 @@ function cleanAiBulletSuggestion(input: unknown) {
     .trim();
 }
 
+function isUsableAiBulletSuggestion(suggestion: string, original: string) {
+  const cleaned = cleanAiBulletSuggestion(suggestion);
+  const words = cleaned.split(/\s+/).filter(Boolean);
+  if (
+    words.length < 7 ||
+    /\b(by|with|for|to|of|in|on|at|from|through|using|via|and|or|the|a|an)$/i.test(cleaned) ||
+    /[:;,]$/.test(cleaned)
+  ) {
+    return false;
+  }
+
+  const originalKeywords = original
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter((word) => word.length >= 5);
+
+  if (originalKeywords.length < 3) {
+    return true;
+  }
+
+  const suggestionText = ` ${cleaned.toLowerCase()} `;
+  const overlap = Array.from(new Set(originalKeywords)).filter((word) => suggestionText.includes(word)).length;
+  return overlap >= Math.min(2, originalKeywords.length);
+}
+
 function parseSkillsInput(input: string) {
   return input
     .split(/\n+/)
@@ -177,8 +203,14 @@ function ExperienceRole({
                               return;
                             }
 
+                            const suggestion = cleanAiBulletSuggestion(data.suggestion);
+                            if (!isUsableAiBulletSuggestion(suggestion, bullet)) {
+                              setMessage("AI returned an incomplete rewrite. Your original bullet was kept.");
+                              return;
+                            }
+
                             const nextBullets = [...item.bullets];
-                            nextBullets[bulletIndex] = cleanAiBulletSuggestion(data.suggestion);
+                            nextBullets[bulletIndex] = suggestion;
                             updateExperience(index, "bullets", nextBullets);
                             setMessage(`AI ${action.value} applied.`);
                           } catch (error) {
@@ -572,8 +604,14 @@ export function ResumeEditor({ initialData, resumeId }: { initialData: ResumeFor
                                                       return;
                                                     }
 
+                                                    const suggestion = cleanAiBulletSuggestion(data.suggestion);
+                                                    if (!isUsableAiBulletSuggestion(suggestion, bullet)) {
+                                                      setMessage("AI returned an incomplete rewrite. Your original bullet was kept.");
+                                                      return;
+                                                    }
+
                                                     const nextBullets = [...safeBullets];
-                                                    nextBullets[bulletIndex] = cleanAiBulletSuggestion(data.suggestion);
+                                                    nextBullets[bulletIndex] = suggestion;
                                                     updateProject(index, "description", joinProjectDescription(nextBullets));
                                                     setMessage(`AI ${action.value} applied.`);
                                                   } catch (error) {

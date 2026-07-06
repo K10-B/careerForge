@@ -12,7 +12,7 @@ CareerForge AI is a production-ready SaaS application for modern job seekers who
 - Auth.js with credentials auth
 - Prisma ORM
 - PostgreSQL
-- Gemini API
+- Groq API
 - Playwright for direct PDF generation
 - Vercel-ready deployment
 
@@ -29,7 +29,7 @@ CareerForge AI is a production-ready SaaS application for modern job seekers who
 - Direct resume PDF download powered by Playwright from the shared export route
 - Resume cards include an in-app preview modal with dark-theme loading skeletons
 - AI resume bullet rewriting actions
-- Cover letter generator powered by Gemini
+- Cover letter generator powered by Groq
 - Free-tier usage enforcement for resumes, AI bullet improvements, and cover letter generations
 - Job application tracker with CRUD flows
 - PDF resume export with one-page fit handling, cleaner pagination, and blank-page cleanup
@@ -44,8 +44,8 @@ Copy `.env.example` to `.env` and fill in:
 ```env
 DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/careerforge?sslmode=require"
 AUTH_SECRET="replace-with-a-long-random-secret"
-GEMINI_API_KEY="your-gemini-api-key"
-GEMINI_MODEL="gemini-2.5-flash"
+GROQ_API_KEY="your-groq-api-key"
+GROQ_MODEL="llama-3.3-70b-versatile"
 NEXTAUTH_URL="http://localhost:3000"
 XENDIT_SECRET_KEY="your-xendit-test-secret-key"
 XENDIT_WEBHOOK_TOKEN="your-xendit-callback-token"
@@ -119,8 +119,10 @@ npm run dev
 
 - Resume bullet actions call `POST /api/ai/resume-bullets`.
 - Cover letter generation calls `POST /api/ai/cover-letter`.
-- If `GEMINI_API_KEY` is missing, the app returns a safe fallback message instead of breaking.
-- You can override the default Gemini model with `GEMINI_MODEL` when needed.
+- Groq powers AI generation through `GROQ_API_KEY`.
+- The default Groq model is `llama-3.3-70b-versatile`.
+- You can override the model with `GROQ_MODEL` when needed.
+- If `GROQ_API_KEY` is missing, the app returns a safe fallback message instead of breaking.
 
 ## Billing Notes
 

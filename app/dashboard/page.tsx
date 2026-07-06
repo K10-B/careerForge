@@ -114,7 +114,7 @@ export default async function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>AI tools panel</CardTitle>
-            <CardDescription>Gemini is wired into resume and cover letter workflows with controlled prompts and session-aware access.</CardDescription>
+            <CardDescription>Groq is wired into resume and cover letter workflows with controlled prompts and session-aware access.</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-[24px] border border-border/70 bg-muted/40 p-4">

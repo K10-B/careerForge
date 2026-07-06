@@ -36,7 +36,7 @@ const faqs = [
   ["Can I export my resume to PDF?", "Yes. Each resume includes a polished live preview and one-click PDF export."],
   ["Does CareerForge support dark mode?", "Yes. Light and dark themes are built intentionally across every core screen."],
   ["Do I need billing set up to use this?", "No. Pricing is productized now, but real billing can be connected later with Stripe."],
-  ["What AI model powers generation?", "Gemini is used for bullet rewrites and cover letter generation through a server-side integration."],
+  ["What AI model powers generation?", "Groq powers bullet rewrites and cover letter generation through a server-side integration."],
 ];
 
 export default function LandingPage() {

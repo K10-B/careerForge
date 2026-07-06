@@ -8,6 +8,7 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 
 import { DashboardProfileMenu } from "@/components/dashboard/dashboard-profile-menu";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
@@ -54,6 +55,7 @@ export function MarketingNavbar() {
             </>
           ) : (
             <>
+              <ThemeToggle />
               <Button asChild variant="accent">
                 <Link href="/signup">
                   Start free
@@ -73,7 +75,9 @@ export function MarketingNavbar() {
         <div className="flex items-center gap-2 md:hidden">
           {isSignedIn ? (
             <DashboardProfileMenu name={data?.user?.name} email={data?.user?.email} compact />
-          ) : null}
+          ) : (
+            <ThemeToggle />
+          )}
           <Button variant="outline" size="icon" onClick={() => setOpen((value) => !value)}>
             {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           </Button>

@@ -2,26 +2,25 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
+import { useAnimatedThemeToggle } from "@/lib/use-animated-theme-toggle";
 
 export function ThemeToggle() {
-  const { resolvedTheme, setTheme } = useTheme();
+  const { isDark, toggleTheme } = useAnimatedThemeToggle();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const isDark = resolvedTheme === "dark";
   const toggleLabel = !mounted ? "Toggle theme" : isDark ? "Switch to light mode" : "Switch to dark mode";
 
   return (
     <Button
       variant="ghost"
       size="icon"
-      onClick={() => setTheme(isDark ? "light" : "dark")}
+      onClick={toggleTheme}
       aria-label={toggleLabel}
       type="button"
       className="relative h-12 w-12 overflow-hidden rounded-full border-0 bg-transparent shadow-none hover:bg-transparent hover:shadow-none dark:hover:bg-transparent"
